@@ -1,1 +1,6 @@
+app:
+  config:
+    token: t.FN-e5njxr5GE_htem37oGEqiL437B7DOncS1D81pT2GeelsTpalxGAI2ZwDHq8xjVRBnW2-NHPloGeuFfGkgcg
 
+server:
+  port: 8090
