@@ -10,13 +10,15 @@ import java.time.OffsetDateTime;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class IndicatorCandle implements Comparable {
+public class IndicatorCandle implements Comparable<IndicatorCandle> {
     private BigDecimal closePrice;
+    private BigDecimal openPrice;
+    private BigDecimal highPrice;
+    private BigDecimal lowPrice;
     private OffsetDateTime time;
 
     @Override
-    public int compareTo(Object o) {
-        IndicatorCandle ic = (IndicatorCandle) o;
+    public int compareTo(IndicatorCandle ic) {
         return this.getTime().compareTo(ic.getTime());
     }
 }

@@ -1,51 +1,49 @@
 package ru.abelogur.tininvestrobot.indicator;
 
-import lombok.Getter;
+import ru.abelogur.tininvestrobot.indicator.helper.ClosePriceIndicator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Экспоненциальное скользящее среднее
  * @see <a href="https://www.investopedia.com/terms/e/ema.asp">https://www.investopedia.com/terms/e/ema.asp</a>
  */
-public class EMAIndicator implements Indicator<BigDecimal> {
+public class EMAIndicator extends CachedIndicator<BigDecimal> {
 
-    @Getter
-    private List<IndicatorCandle> candles;
-    private BigDecimal multiplier;
+    private final ClosePriceIndicator indicator;
+    private final BigDecimal multiplier;
 
-    private final Map<Integer, BigDecimal> cacheValues = new HashMap<>();
+    public EMAIndicator(List<IndicatorCandle> candles, int candlesCount) {
+        this(new ClosePriceIndicator(candles), candlesCount);
+    }
 
-    public EMAIndicator(List<IndicatorCandle> candles, Integer candlesCount) {
-        this.candles = candles;
-        this.multiplier = BigDecimal.valueOf(2.0 / (candlesCount + 1));
+    public EMAIndicator(ClosePriceIndicator indicator, int candleCount) {
+        super(indicator);
+        this.indicator = indicator;
+        this.multiplier = BigDecimal.valueOf(2.0 / (candleCount + 1));
 
+        // Значения для индикатора вычисляются на основе предыдущих значений рекурсивно.
+        // Чтобы избежать StackOverflowError стоить постепенно заполнить кэш.
         warmCache();
     }
 
     @Override
-    public BigDecimal getValue(int index) {
+    protected BigDecimal calculate(int index) {
         if (index == 0) {
-            return candles.get(0).getClosePrice();
+            return indicator.getValue(0);
         }
-        if (cacheValues.containsKey(index)) {
-            return cacheValues.get(index);
-        }
-
         BigDecimal prevValue = getValue(index - 1);
-        var value = candles.get(index).getClosePrice().subtract(prevValue)
-                .multiply(multiplier).add(prevValue).setScale(9, RoundingMode.HALF_UP);
-        cacheValues.put(index, value);
-        return value;
+        return indicator.getValue(index)
+                .subtract(prevValue)
+                .multiply(multiplier)
+                .add(prevValue).setScale(9, RoundingMode.HALF_UP);
     }
 
     private void warmCache() {
         int i = 0;
-        while (i + 10 < candles.size()) {
+        while (i + 10 < getCandles().size()) {
             i += 10;
             getValue(i);
         }

@@ -24,4 +24,12 @@ public class IndicatorController {
                                             @RequestParam Duration interval) {
         return indicatorService.getEmaIndicator(figi, counter, interval);
     }
+
+    @GetMapping("/stochasticOscillator")
+    public List<ChartPoint> geStochasticOscillatorIndicator(@RequestParam String figi,
+                                                            @RequestParam Integer counter,
+                                                            @RequestParam Duration interval,
+                                                            @RequestParam Integer smoothing) {
+        return indicatorService.getStochasticOscillatorIndicator(figi, counter, interval, smoothing);
+    }
 }
