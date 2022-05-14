@@ -1,13 +1,15 @@
 package ru.abelogur.tininvestrobot.repository;
 
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
+import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 
 import java.util.Collection;
+import java.util.SortedSet;
 
 public interface CandleRepository {
-    boolean add(String figi, CachedCandle candle);
+    boolean add(CandleGroupId groupId, CachedCandle candle);
 
-    void addAll(String figi, Collection<CachedCandle> candle);
+    void addAll(CandleGroupId groupId, Collection<CachedCandle> candle);
 
-    Collection<CachedCandle> getAll(String figi);
+    SortedSet<CachedCandle> getAll(CandleGroupId groupId);
 }
