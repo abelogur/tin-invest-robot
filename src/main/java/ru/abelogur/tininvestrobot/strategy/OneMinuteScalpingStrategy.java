@@ -1,7 +1,7 @@
 package ru.abelogur.tininvestrobot.strategy;
 
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.indicator.EMAIndicator;
-import ru.abelogur.tininvestrobot.indicator.IndicatorCandle;
 import ru.abelogur.tininvestrobot.indicator.SMAIndicator;
 import ru.abelogur.tininvestrobot.indicator.StochasticOscillator;
 import ru.abelogur.tininvestrobot.indicator.helper.ClosePriceIndicator;
@@ -19,7 +19,7 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
     private final EMAIndicator ema100Indicator;
     private final SMAIndicator slowStochastic;
 
-    public OneMinuteScalpingStrategy(List<IndicatorCandle> candles) {
+    public OneMinuteScalpingStrategy(List<CachedCandle> candles) {
         this.lastIndex = candles.size() - 1;
         this.closePriceIndicator = new ClosePriceIndicator(candles);
         this.ema50Indicator = new EMAIndicator(candles, 50);

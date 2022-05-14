@@ -3,18 +3,16 @@ package ru.abelogur.tininvestrobot.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.controller.dto.ChartPoint;
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.indicator.EMAIndicator;
-import ru.abelogur.tininvestrobot.indicator.IndicatorCandle;
 import ru.abelogur.tininvestrobot.indicator.SMAIndicator;
 import ru.abelogur.tininvestrobot.indicator.StochasticOscillator;
 import ru.abelogur.tininvestrobot.util.HelperUtils;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
-import ru.tinkoff.piapi.core.utils.MapperUtils;
 
+import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +26,13 @@ public class IndicatorService {
 
     private final SdkService sdkService;
 
-    private final HashMap<String, List<IndicatorCandle>> cache = new HashMap<>();
+    private final HashMap<String, List<CachedCandle>> cache = new HashMap<>();
 
     public List<ChartPoint> getEmaIndicator(String figi, Integer count, Duration interval) {
         var candleInterval = HelperUtils.intervalFrom(interval);
 
         var cacheKey = figi+candleInterval;
-        final List<IndicatorCandle> candles;
+        final List<CachedCandle> candles;
         if (cache.containsKey(cacheKey)) {
             candles = cache.get(cacheKey);
         } else {
@@ -54,7 +52,7 @@ public class IndicatorService {
         var candleInterval = HelperUtils.intervalFrom(interval);
 
         var cacheKey = figi+interval;
-        final List<IndicatorCandle> candles;
+        final List<CachedCandle> candles;
         if (cache.containsKey(cacheKey)) {
             candles = cache.get(cacheKey);
         } else {
@@ -70,22 +68,18 @@ public class IndicatorService {
                 .collect(Collectors.toList());
     }
 
-    private List<IndicatorCandle> getDataSet(String figi, int offsetYears, CandleInterval candleInterval) {
+    private List<CachedCandle> getDataSet(String figi, int offsetYears, CandleInterval candleInterval) {
         if (offsetYears > 1) {
             return new ArrayList<>();
         }
-        var from = OffsetDateTime.now().minusYears(offsetYears).toInstant();
-        var to = OffsetDateTime.now().minusYears(offsetYears - 1).toInstant();
-//        var from = OffsetDateTime.now().minusHours(1).toInstant();
-//        var to = OffsetDateTime.now().toInstant();
+//        var from = OffsetDateTime.now().minusYears(offsetYears).toInstant();
+//        var to = OffsetDateTime.now().minusYears(offsetYears - 1).toInstant();
+        var from = OffsetDateTime.now().minusDays(1).toInstant();
+        var to = OffsetDateTime.now().toInstant();
         var candles = sdkService.getInvestApi()
                 .getMarketDataService().getCandlesSync(figi, from, to, candleInterval).stream()
-                .map(it -> new IndicatorCandle()
-                        .setClosePrice(MapperUtils.quotationToBigDecimal(it.getClose()))
-                        .setHighPrice(MapperUtils.quotationToBigDecimal(it.getHigh()))
-                        .setLowPrice(MapperUtils.quotationToBigDecimal(it.getLow()))
-                        .setTime(OffsetDateTime.ofInstant(Instant.ofEpochSecond(it.getTime().getSeconds()), ZoneId.of("UTC"))))
-                .collect(TreeSet<IndicatorCandle>::new, TreeSet::add, TreeSet::addAll);
+                .map(it -> CachedCandle.ofHistoricCandle(it, BigDecimal.ONE))
+                .collect(TreeSet<CachedCandle>::new, TreeSet::add, TreeSet::addAll);
         if (!candles.isEmpty()) {
             candles.addAll(getDataSet(figi, offsetYears + 1, candleInterval));
         }

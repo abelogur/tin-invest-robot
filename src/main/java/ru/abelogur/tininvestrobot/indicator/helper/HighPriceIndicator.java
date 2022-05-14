@@ -1,14 +1,12 @@
 package ru.abelogur.tininvestrobot.indicator.helper;
 
-import ru.abelogur.tininvestrobot.indicator.IndicatorCandle;
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.function.Function;
 
 public class HighPriceIndicator extends PriceIndicator {
 
-    public HighPriceIndicator(List<IndicatorCandle> candles) {
-        super(candles, IndicatorCandle::getHighPrice);
+    public HighPriceIndicator(List<CachedCandle> candles) {
+        super(candles, CachedCandle::getHighPrice);
     }
 }

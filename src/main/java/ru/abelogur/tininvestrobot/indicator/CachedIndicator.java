@@ -1,6 +1,7 @@
 package ru.abelogur.tininvestrobot.indicator;
 
-import java.util.ArrayList;
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ public abstract class CachedIndicator<T> extends AbstractIndicator<T> {
         this(indicator.getCandles());
     }
 
-    protected CachedIndicator(List<IndicatorCandle> candles) {
+    protected CachedIndicator(List<CachedCandle> candles) {
         super(candles);
         this.cache = new HashMap<>(candles.size());
     }

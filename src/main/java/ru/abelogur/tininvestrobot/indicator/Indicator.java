@@ -1,9 +1,11 @@
 package ru.abelogur.tininvestrobot.indicator;
 
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
+
 import java.util.List;
 
 /**
- * Индикатор технического анализа над множеством {@link IndicatorCandle японских свечей}. <p/p> Для каждого индекса из
+ * Индикатор технического анализа над множеством {@link CachedCandle японских свечей}. <p/p> Для каждого индекса из
  * множества японских свечей возвращается значение типа <b>T</b>.
  *
  * @param <T> Возвращаемое значение (Double, Boolean, etc.)
@@ -17,5 +19,5 @@ public interface Indicator<T> {
      */
     T getValue(int index);
 
-    List<IndicatorCandle> getCandles();
+    List<CachedCandle> getCandles();
 }

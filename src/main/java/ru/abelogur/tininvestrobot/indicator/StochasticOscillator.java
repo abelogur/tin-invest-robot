@@ -1,5 +1,6 @@
 package ru.abelogur.tininvestrobot.indicator;
 
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.indicator.helper.*;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ public class StochasticOscillator extends CachedIndicator<BigDecimal> {
     private final HighestValueIndicator highestValueIndicator;
     private final LowestValueIndicator lowestValueIndicator;
 
-    public StochasticOscillator(List<IndicatorCandle> candles, int candleCount) {
+    public StochasticOscillator(List<CachedCandle> candles, int candleCount) {
        this(new ClosePriceIndicator(candles), candleCount);
     }
 

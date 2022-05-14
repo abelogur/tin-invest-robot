@@ -1,8 +1,7 @@
 package ru.abelogur.tininvestrobot.indicator.helper;
 
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.indicator.CachedIndicator;
-import ru.abelogur.tininvestrobot.indicator.Indicator;
-import ru.abelogur.tininvestrobot.indicator.IndicatorCandle;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,9 +9,9 @@ import java.util.function.Function;
 
 public abstract class PriceIndicator extends CachedIndicator<BigDecimal> {
 
-    private final Function<IndicatorCandle, BigDecimal> priceFunction;
+    private final Function<CachedCandle, BigDecimal> priceFunction;
 
-    protected PriceIndicator(List<IndicatorCandle> candles, Function<IndicatorCandle, BigDecimal> priceFunction) {
+    protected PriceIndicator(List<CachedCandle> candles, Function<CachedCandle, BigDecimal> priceFunction) {
         super(candles);
         this.priceFunction = priceFunction;
     }

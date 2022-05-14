@@ -1,8 +1,6 @@
 package ru.abelogur.tininvestrobot.indicator.helper;
 
 import ru.abelogur.tininvestrobot.indicator.CachedIndicator;
-import ru.abelogur.tininvestrobot.indicator.Indicator;
-import ru.abelogur.tininvestrobot.indicator.IndicatorCandle;
 
 import java.math.BigDecimal;
 

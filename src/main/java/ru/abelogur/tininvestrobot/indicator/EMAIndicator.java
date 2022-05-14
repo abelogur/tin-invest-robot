@@ -1,5 +1,6 @@
 package ru.abelogur.tininvestrobot.indicator;
 
+import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.indicator.helper.ClosePriceIndicator;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ public class EMAIndicator extends CachedIndicator<BigDecimal> {
     private final ClosePriceIndicator indicator;
     private final BigDecimal multiplier;
 
-    public EMAIndicator(List<IndicatorCandle> candles, int candlesCount) {
+    public EMAIndicator(List<CachedCandle> candles, int candlesCount) {
         this(new ClosePriceIndicator(candles), candlesCount);
     }
 
