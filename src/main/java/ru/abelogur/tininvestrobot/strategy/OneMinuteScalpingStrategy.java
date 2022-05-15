@@ -29,20 +29,21 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
 
     @Override
     public boolean isLongSignal() {
-        return isEma50AboveEma100() && isPriceBelowEma100() && isStochasticLowToHigh();
+        return isEma50AboveEma100() && isPriceNearEma100() && isStochasticLowToHigh();
     }
 
     @Override
     public boolean isShortSignal() {
-        return isEma50BelowEma100() && isPriceAboveEma100() && isStochasticHighToLow();
+        return isEma50BelowEma100() && isPriceNearEma100() && isStochasticHighToLow();
+    }
+
+    @Override
+    public void setLastIndex(int index) {
+        lastIndex = index;
     }
 
     private boolean isEma50AboveEma100() {
         return ema50Indicator.getValue(lastIndex).doubleValue() > ema100Indicator.getValue(lastIndex).doubleValue();
-    }
-
-    private boolean isPriceBelowEma100() {
-        return closePriceIndicator.getValue(lastIndex).doubleValue() < ema100Indicator.getValue(lastIndex).doubleValue();
     }
 
     private boolean isStochasticLowToHigh() {
@@ -58,8 +59,9 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
         return ema50Indicator.getValue(lastIndex).doubleValue() < ema100Indicator.getValue(lastIndex).doubleValue();
     }
 
-    private boolean isPriceAboveEma100() {
-        return closePriceIndicator.getValue(lastIndex).doubleValue() > ema100Indicator.getValue(lastIndex).doubleValue();
+    private boolean isPriceNearEma100() {
+        double closePrice = closePriceIndicator.getValue(lastIndex).doubleValue();
+        return Math.abs(closePrice - ema100Indicator.getValue(lastIndex).doubleValue()) < closePrice * 0.0005;
     }
 
     private boolean isStochasticHighToLow() {

@@ -1,17 +1,26 @@
 package ru.abelogur.tininvestrobot.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import ru.abelogur.tininvestrobot.controller.dto.BotConfig;
+import ru.abelogur.tininvestrobot.service.BotService;
+
+import java.time.Instant;
 
 @RestController
 @RequestMapping("bot")
+@RequiredArgsConstructor
 public class BotController {
 
-    @PostMapping
-    public void createBot(@RequestBody BotConfig config) {
+    private final BotService botService;
 
+    @PostMapping()
+    public void createBot(@RequestBody BotConfig config) {
+        botService.createBot(config);
+    }
+
+    @PostMapping("simulation")
+    public void createBot(@RequestBody BotConfig config, @RequestParam Instant start) {
+        botService.createBotSimulation(config, start);
     }
 }

@@ -33,7 +33,7 @@ public class CandleHistoryLoader {
     }
 
     public List<HistoricCandle> loadTo(CandleGroupId groupId, Instant finish) {
-        return load(groupId, getStartDate(groupId.getCandleInterval(), finish), Instant.now());
+        return load(groupId, getStartDate(groupId.getCandleInterval(), finish), finish);
     }
 
     public List<HistoricCandle> load(CandleGroupId groupId, Instant start, Instant finish) {

@@ -12,4 +12,6 @@ public interface CandleRepository {
     void addAll(CandleGroupId groupId, Collection<CachedCandle> candle);
 
     SortedSet<CachedCandle> getAll(CandleGroupId groupId);
+
+    void remove(CandleGroupId groupId);
 }

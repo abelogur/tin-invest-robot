@@ -34,6 +34,12 @@ public class CandleService {
         candleObservers.get(groupId).add(observer);
     }
 
+    public void removeObserver(CandleGroupId groupId, CandleObserver observer) {
+        if (candleObservers.containsKey(groupId)) {
+            candleObservers.get(groupId).remove(observer);
+        }
+    }
+
     public SortedSet<CachedCandle> loadHistoricCandles(CandleGroupId groupId) {
         SortedSet<CachedCandle> candles = candleRepository.getAll(groupId);
         List<HistoricCandle> newCandles;
@@ -64,6 +70,10 @@ public class CandleService {
                 .collect(Collectors.toList());
         candleRepository.addAll(groupId, candlesToSave);
         return candleRepository.getAll(groupId);
+    }
+
+    public void uncached(CandleGroupId groupId) {
+        candleRepository.remove(groupId);
     }
 
     private void notifyObservers(CandleGroupId groupId, CachedCandle candle) {

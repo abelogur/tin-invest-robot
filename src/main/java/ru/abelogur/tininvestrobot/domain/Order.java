@@ -1,12 +1,14 @@
 package ru.abelogur.tininvestrobot.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Order {
     private TradeType type;
     private BigDecimal openPrice;

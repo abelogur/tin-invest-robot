@@ -5,4 +5,6 @@ public interface InvestStrategy {
     boolean isLongSignal();
 
     boolean isShortSignal();
+
+    void setLastIndex(int index);
 }
