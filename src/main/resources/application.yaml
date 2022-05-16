@@ -1,6 +1,7 @@
 app:
   config:
-    token: t.FN-e5njxr5GE_htem37oGEqiL437B7DOncS1D81pT2GeelsTpalxGAI2ZwDHq8xjVRBnW2-NHPloGeuFfGkgcg
+    token: ${INVEST_API_TOKEN:}
+    sandbox: ${INVEST_API_SANDBOX_ON:false}
 
 server:
   port: 8090

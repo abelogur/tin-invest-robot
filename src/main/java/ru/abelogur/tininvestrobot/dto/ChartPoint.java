@@ -13,8 +13,4 @@ import java.time.Instant;
 public class ChartPoint {
     public BigDecimal value;
     public Instant time;
-
-    public static ChartPoint from(BigDecimal value) {
-        return new ChartPoint().setValue(value);
-    }
 }
