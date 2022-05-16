@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.util;
+package ru.abelogur.tininvestrobot.helper;
 
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 

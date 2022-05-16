@@ -31,6 +31,9 @@ public class StochasticOscillator extends CachedIndicator<BigDecimal> {
         final BigDecimal highestHighPrice = highestValueIndicator.getValue(index);
         final BigDecimal lowestLowPrice = lowestValueIndicator.getValue(index);
 
+        if (highestHighPrice.compareTo(lowestLowPrice) == 0) {
+            return BigDecimal.valueOf(100);
+        }
         return indicator.getValue(index).subtract(lowestLowPrice)
                 .divide(highestHighPrice.subtract(lowestLowPrice), 9, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));

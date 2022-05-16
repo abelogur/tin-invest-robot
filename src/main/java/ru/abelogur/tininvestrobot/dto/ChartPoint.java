@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.controller.dto;
+package ru.abelogur.tininvestrobot.dto;
 
 import lombok.Getter;
 import lombok.Setter;

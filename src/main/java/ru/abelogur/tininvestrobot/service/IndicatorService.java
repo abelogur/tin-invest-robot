@@ -2,12 +2,12 @@ package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.abelogur.tininvestrobot.controller.dto.ChartPoint;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
+import ru.abelogur.tininvestrobot.dto.ChartPoint;
+import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.abelogur.tininvestrobot.indicator.EMAIndicator;
 import ru.abelogur.tininvestrobot.indicator.SMAIndicator;
 import ru.abelogur.tininvestrobot.indicator.StochasticOscillator;
-import ru.abelogur.tininvestrobot.util.HelperUtils;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.math.BigDecimal;

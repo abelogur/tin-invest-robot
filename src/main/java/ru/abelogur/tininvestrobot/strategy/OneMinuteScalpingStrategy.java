@@ -47,12 +47,9 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
     }
 
     private boolean isStochasticLowToHigh() {
-        var minRecentlyStochastic = Math.min(
-                slowStochastic.getValue(lastIndex - 1).doubleValue(),
-                slowStochastic.getValue(lastIndex - 2).doubleValue()
-        );
+        var lastStochastic = slowStochastic.getValue(lastIndex - 1).doubleValue();
         var currentStochastic = slowStochastic.getValue(lastIndex).doubleValue();
-        return minRecentlyStochastic < 20 && currentStochastic > 25 && currentStochastic < 40;
+        return lastStochastic < 20 && currentStochastic > 25 && currentStochastic < 40;
     }
 
     private boolean isEma50BelowEma100() {
@@ -60,16 +57,13 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
     }
 
     private boolean isPriceNearEma100() {
-        double closePrice = closePriceIndicator.getValue(lastIndex).doubleValue();
+        var closePrice = closePriceIndicator.getValue(lastIndex).doubleValue();
         return Math.abs(closePrice - ema100Indicator.getValue(lastIndex).doubleValue()) < closePrice * 0.0005;
     }
 
     private boolean isStochasticHighToLow() {
-        var maxRecentlyStochastic = Math.max(
-                slowStochastic.getValue(lastIndex - 1).doubleValue(),
-                slowStochastic.getValue(lastIndex - 2).doubleValue()
-        );
+        var lastStochastic = slowStochastic.getValue(lastIndex - 1).doubleValue();
         var currentStochastic = slowStochastic.getValue(lastIndex).doubleValue();
-        return maxRecentlyStochastic > 80 && currentStochastic < 75 && currentStochastic > 60;
+        return lastStochastic > 80 && currentStochastic < 75 && currentStochastic > 60;
     }
 }
