@@ -20,8 +20,13 @@ public class BotController {
         return botService.createBot(config);
     }
 
+    @PostMapping("sandbox")
+    public UUID createSandbox(@RequestBody BotConfig config) {
+        return botService.createSandboxBot(config);
+    }
+
     @PostMapping("simulation")
-    public UUID createBot(@RequestBody BotConfig config, @RequestParam Instant start) {
+    public UUID createSimulationBot(@RequestBody BotConfig config, @RequestParam Instant start) {
         return botService.createBotSimulation(config, start);
     }
 }

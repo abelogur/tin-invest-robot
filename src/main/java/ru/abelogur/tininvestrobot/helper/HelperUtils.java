@@ -23,6 +23,17 @@ public final class HelperUtils {
         }
     }
 
+    public static Duration durationFrom(CandleInterval interval) {
+        switch (interval) {
+            case CANDLE_INTERVAL_1_MIN: return ChronoUnit.MINUTES.getDuration();
+            case CANDLE_INTERVAL_5_MIN: return ChronoUnit.MINUTES.getDuration().multipliedBy(5);
+            case CANDLE_INTERVAL_15_MIN: return ChronoUnit.MINUTES.getDuration().multipliedBy(15);
+            case CANDLE_INTERVAL_HOUR: return ChronoUnit.WEEKS.getDuration();
+            case CANDLE_INTERVAL_DAY: return ChronoUnit.YEARS.getDuration();
+            default: throw new IllegalArgumentException("Invalid candle interval");
+        }
+    }
+
     public static Duration getMaxRequestPeriod(CandleInterval interval) {
         switch (interval) {
             case CANDLE_INTERVAL_1_MIN:

@@ -6,3 +6,13 @@ app:
 
 server:
   port: 8090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: logfile
+
+logging:
+  file:
+    name: /tmp/app.log

@@ -5,6 +5,7 @@ import io.grpc.StatusRuntimeException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.domain.OrderStatus;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
 import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
@@ -16,6 +17,7 @@ import ru.tinkoff.piapi.core.stream.StreamProcessor;
 import ru.tinkoff.piapi.core.utils.MapperUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -54,12 +56,14 @@ public class RealOrderService extends IntegrationOrderService {
 
     @Override
     public boolean cancelOrder(String accountId, String orderId) {
+        Optional<Order> order = orderHistoryRepository.get(orderId);
         try {
             sdkService.getInvestApi().getOrdersService().cancelOrderSync(accountId, orderId);
+            order.ifPresent(observersHolder::notifyFailedOrderObservers);
         } catch (Exception e) {
             return false;
         }
-        return true;
+        return order.isPresent();
     }
 
     private void runOrdersStream() {
