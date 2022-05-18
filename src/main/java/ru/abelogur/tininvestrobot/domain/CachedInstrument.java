@@ -3,6 +3,7 @@ package ru.abelogur.tininvestrobot.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import ru.tinkoff.piapi.contract.v1.Instrument;
+import ru.tinkoff.piapi.core.utils.MapperUtils;
 
 import java.math.BigDecimal;
 
@@ -21,6 +22,7 @@ public class CachedInstrument {
     private int tradingStatus;
     private boolean apiTradeAvailableFlag;
     private String image;
+    private BigDecimal minPriceIncrement;
 
     public boolean isNormalTrading() {
         return tradingStatus == 5;
@@ -37,7 +39,8 @@ public class CachedInstrument {
                 instrument.getInstrumentType(),
                 instrument.getTradingStatusValue(),
                 instrument.getApiTradeAvailableFlag(),
-                String.format(IMAGE_URL_MASK, instrument.getFigi())
+                String.format(IMAGE_URL_MASK, instrument.getFigi()),
+                MapperUtils.quotationToBigDecimal(instrument.getMinPriceIncrement())
         );
     }
 }

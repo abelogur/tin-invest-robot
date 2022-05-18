@@ -12,7 +12,7 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 public class InstrumentInMemoryRepository implements InstrumentRepository {
 
-    private HashMap<String, CachedInstrument> instruments = new HashMap<>();
+    private final HashMap<String, CachedInstrument> instruments = new HashMap<>();
 
     private final SdkService sdkService;
 

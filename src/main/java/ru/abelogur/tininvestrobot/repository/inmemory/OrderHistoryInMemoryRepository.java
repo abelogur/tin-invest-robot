@@ -17,6 +17,13 @@ public class OrderHistoryInMemoryRepository implements OrderHistoryRepository, O
             Comparator.comparing(Order::getTime)
     );
 
+    @Override
+    public Optional<Order> get(String orderId) {
+        return orders.values().stream()
+                .flatMap(Collection::stream)
+                .filter(order -> order.getId().equals(orderId))
+                .findFirst();
+    }
 
     @Override
     public void add(UUID botUuid, Order order) {
@@ -25,12 +32,35 @@ public class OrderHistoryInMemoryRepository implements OrderHistoryRepository, O
     }
 
     @Override
+    public void update(Order order) {
+        get(order.getId())
+                .ifPresent(it -> it.updateOrder(order));
+    }
+
+    @Override
     public SortedSet<Order> getAll(UUID botUuid) {
         return orders.getOrDefault(botUuid, EMPTY_TREE_SET.get());
     }
 
     @Override
-    public void notifyOrder(UUID botUuid, Order order) {
-        add(botUuid, order);
+    public void remove(UUID botUuid, String orderId) {
+        if(orders.containsKey(botUuid)) {
+            orders.get(botUuid).removeIf(order -> order.getId().equals(orderId));
+        }
+    }
+
+    @Override
+    public void notifyNewOrder(Order order) {
+        add(order.getBotUuid(), order);
+    }
+
+    @Override
+    public void notifySuccessfulOrder(Order order) {
+        add(order.getBotUuid(), order);
+    }
+
+    @Override
+    public void notifyFailedOrder(Order order) {
+        remove(order.getBotUuid(), order.getId());
     }
 }

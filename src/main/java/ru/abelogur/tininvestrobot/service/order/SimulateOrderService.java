@@ -5,13 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.domain.OrderAction;
+import ru.abelogur.tininvestrobot.domain.OrderStatus;
 import ru.abelogur.tininvestrobot.domain.TradeType;
-import ru.abelogur.tininvestrobot.dto.OrderMetadata;
+import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
+import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
+import ru.abelogur.tininvestrobot.repository.OrderHistoryRepository;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,36 +21,91 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SimulateOrderService implements OrderService {
 
-    private final List<OrderObserver> orderObservers;
+    private final OrderObserversHolder observersHolder;
     private final InstrumentRepository instrumentRepository;
+    private final OrderHistoryRepository orderHistoryRepository;
 
-    public Optional<Order> buyLong(String figi, OrderMetadata metadata) {
-        Order order = Order.of(TradeType.LONG, OrderAction.BUY, getCommission(metadata.getPrice()), metadata, instrumentRepository.get(figi));
-        notifyObservers(metadata.getBotUuid(), order);
+    @Override
+    public Optional<Order> openLong(CreateOrderInfo orderInfo) {
+        var order = new Order(
+                UUID.randomUUID().toString(),
+                orderInfo.getBotUuid(),
+                TradeType.LONG,
+                orderInfo.getPrice(),
+                getCommission(orderInfo.getPrice()),
+                orderInfo.getTime(),
+                orderInfo.getReason(),
+                OrderAction.OPEN,
+                OrderStatus.SUCCESS,
+                instrumentRepository.get(orderInfo.getFigi()).getName()
+        );
+        observersHolder.notifyNewOrderObservers(order);
+        observersHolder.notifySuccessOrderObservers(order);
         return Optional.of(order);
     }
 
-    public boolean sellLong(String figi, OrderMetadata metadata) {
-        Order order = Order.of(TradeType.LONG, OrderAction.SELL, getCommission(metadata.getPrice()), metadata, instrumentRepository.get(figi));
-        notifyObservers(metadata.getBotUuid(), order);
-        return true;
-    }
-
-    public Optional<Order> buyShort(String figi, OrderMetadata metadata) {
-//        return Optional.empty();
-        Order order = Order.of(TradeType.SHORT, OrderAction.BUY, getCommission(metadata.getPrice()), metadata, instrumentRepository.get(figi));
-        notifyObservers(metadata.getBotUuid(), order);
+    @Override
+    public Optional<Order> closeLong(CreateOrderInfo orderInfo) {
+        var order = new Order(
+                UUID.randomUUID().toString(),
+                orderInfo.getBotUuid(),
+                TradeType.LONG,
+                orderInfo.getPrice(),
+                getCommission(orderInfo.getPrice()),
+                orderInfo.getTime(),
+                orderInfo.getReason(),
+                OrderAction.CLOSE,
+                OrderStatus.SUCCESS,
+                instrumentRepository.get(orderInfo.getFigi()).getName()
+        );
+        observersHolder.notifyNewOrderObservers(order);
+        observersHolder.notifySuccessOrderObservers(order);
         return Optional.of(order);
     }
 
-    public boolean sellShort(String figi, OrderMetadata metadata) {
-        Order order = Order.of(TradeType.SHORT, OrderAction.SELL, getCommission(metadata.getPrice()), metadata, instrumentRepository.get(figi));
-        notifyObservers(metadata.getBotUuid(), order);
-        return true;
+    @Override
+    public Optional<Order> openShort(CreateOrderInfo orderInfo) {
+        var order = new Order(
+                UUID.randomUUID().toString(),
+                orderInfo.getBotUuid(),
+                TradeType.SHORT,
+                orderInfo.getPrice(),
+                getCommission(orderInfo.getPrice()),
+                orderInfo.getTime(),
+                orderInfo.getReason(),
+                OrderAction.OPEN,
+                OrderStatus.SUCCESS,
+                instrumentRepository.get(orderInfo.getFigi()).getName()
+        );
+        observersHolder.notifyNewOrderObservers(order);
+        observersHolder.notifySuccessOrderObservers(order);
+        return Optional.of(order);
     }
 
-    private void notifyObservers(UUID botUuid, Order order) {
-        orderObservers.forEach(it -> it.notifyOrder(botUuid, order));
+    @Override
+    public Optional<Order> closeShort(CreateOrderInfo orderInfo) {
+        var order = new Order(
+                UUID.randomUUID().toString(),
+                orderInfo.getBotUuid(),
+                TradeType.SHORT,
+                orderInfo.getPrice(),
+                getCommission(orderInfo.getPrice()),
+                orderInfo.getTime(),
+                orderInfo.getReason(),
+                OrderAction.CLOSE,
+                OrderStatus.SUCCESS,
+                instrumentRepository.get(orderInfo.getFigi()).getName()
+        );
+        observersHolder.notifyNewOrderObservers(order);
+        observersHolder.notifySuccessOrderObservers(order);
+        return Optional.of(order);
+    }
+
+    @Override
+    public boolean cancelOrder(String accountId, String orderId) {
+        Optional<Order> order = orderHistoryRepository.get(orderId);
+        order.ifPresent(observersHolder::notifyFailedOrderObservers);
+        return order.isPresent();
     }
 
     private BigDecimal getCommission(BigDecimal price) {

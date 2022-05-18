@@ -10,9 +10,12 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
-public class OrderMetadata {
+public class CreateOrderInfo {
     private UUID botUuid;
+    private String figi;
     private OrderReason reason;
     private BigDecimal price;
     private Instant time;
+    private String accountId;
+    private int numberOfLots;
 }

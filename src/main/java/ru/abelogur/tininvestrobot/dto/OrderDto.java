@@ -16,6 +16,7 @@ import java.time.Instant;
 @Accessors(chain = true)
 public class OrderDto {
     private BigDecimal price;
+    private BigDecimal commission;
     private TradeType type;
     private OrderAction action;
     private Instant time;
@@ -24,6 +25,7 @@ public class OrderDto {
     public static OrderDto map(Order order) {
         return new OrderDto()
                 .setPrice(order.getPrice())
+                .setCommission(order.getCommission())
                 .setType(order.getType())
                 .setAction(order.getAction())
                 .setTime(order.getTime())

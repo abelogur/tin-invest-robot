@@ -1,4 +1,5 @@
 app:
+  name: Invest Bot
   config:
     token: ${INVEST_API_TOKEN:}
     sandbox: ${INVEST_API_SANDBOX_ON:false}

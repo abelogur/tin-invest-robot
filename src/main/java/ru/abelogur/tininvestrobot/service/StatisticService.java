@@ -6,6 +6,7 @@ import ru.abelogur.tininvestrobot.domain.OrderAction;
 import ru.abelogur.tininvestrobot.domain.TradeType;
 import ru.abelogur.tininvestrobot.dto.StatisticDto;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
+import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 import ru.abelogur.tininvestrobot.repository.OrderHistoryRepository;
 import ru.tinkoff.piapi.core.utils.MapperUtils;
 
@@ -20,8 +21,11 @@ public class StatisticService {
     private final OrderHistoryRepository orderHistoryRepository;
     private final SdkService sdkService;
     private final InstrumentRepository instrumentRepository;
+    private final InvestBotRepository botRepository;
 
     public StatisticDto getStatistic(UUID botUuid) {
+        var settings = botRepository.getBotSettings(botUuid)
+                .orElseThrow(() -> new IllegalArgumentException("Bot doesn't exist"));
         var orders = orderHistoryRepository.getAll(botUuid);
         if (orders.isEmpty()) {
             return StatisticDto.empty();
@@ -34,16 +38,16 @@ public class StatisticService {
         var shorts = 0;
 
         for (var order : orders) {
-            if (order.getAction().equals(OrderAction.BUY) && order.getType().equals(TradeType.LONG)) {
+            if (order.getAction().equals(OrderAction.OPEN) && order.getType().equals(TradeType.LONG)) {
                 longs++;
                 profit = profit.subtract(order.getPrice());
-            } else if (order.getAction().equals(OrderAction.SELL) && order.getType().equals(TradeType.SHORT)) {
+            } else if (order.getAction().equals(OrderAction.CLOSE) && order.getType().equals(TradeType.SHORT)) {
                 shorts--;
                 profit = profit.subtract(order.getPrice());
-            } else if (order.getAction().equals(OrderAction.SELL) && order.getType().equals(TradeType.LONG)) {
+            } else if (order.getAction().equals(OrderAction.CLOSE) && order.getType().equals(TradeType.LONG)) {
                 longs--;
                 profit = profit.add(order.getPrice());
-            } else if (order.getAction().equals(OrderAction.BUY) && order.getType().equals(TradeType.SHORT)) {
+            } else if (order.getAction().equals(OrderAction.OPEN) && order.getType().equals(TradeType.SHORT)) {
                 shorts++;
                 profit = profit.add(order.getPrice());
             }
@@ -53,8 +57,7 @@ public class StatisticService {
             }
         }
 
-        var figi = orders.last().getInstrument().getFigi();
-        var lastPrice = getLastPrice(figi);
+        var lastPrice = getLastPrice(settings.getFigi());
         profit = profit.add(lastPrice.multiply(BigDecimal.valueOf(longs)));
         profit = profit.subtract(lastPrice.multiply(BigDecimal.valueOf(shorts)));
         return new StatisticDto(orders, profit, commission, usedMoney);

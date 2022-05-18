@@ -9,4 +9,6 @@ public class BotConfig {
     private String figi;
     private BigDecimal takeProfit = BigDecimal.valueOf(0.0008);
     private BigDecimal stopLoss = BigDecimal.valueOf(0.0003);
+    private String accountId;
+    private Integer numberOfLots = 1;
 }

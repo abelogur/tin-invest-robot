@@ -1,40 +1,40 @@
 package ru.abelogur.tininvestrobot.domain;
 
-import ru.abelogur.tininvestrobot.dto.OrderMetadata;
+import lombok.Getter;
+import ru.abelogur.tininvestrobot.dto.BotSettings;
+import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
+import ru.abelogur.tininvestrobot.service.OrderObserver;
 import ru.abelogur.tininvestrobot.service.order.OrderService;
 import ru.abelogur.tininvestrobot.strategy.InvestStrategy;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
-public class InvestBot implements CandleObserver {
+public class InvestBot implements CandleObserver, OrderObserver {
 
-    private final UUID uuid;
-    private final String figi;
+    @Getter
+    private final BotSettings settings;
     private final List<CachedCandle> candles;
     private final InvestStrategy investStrategy;
     private final OrderService orderService;
-    private final BigDecimal takeProfit;
-    private final BigDecimal stopLoss;
 
     private Order order;
 
-    public InvestBot(UUID uuid, String figi, List<CachedCandle> candles, InvestStrategy investStrategy,
-                     OrderService orderService, BigDecimal takeProfit, BigDecimal stopLoss) {
-        this.uuid = uuid;
-        this.figi = figi;
+    public InvestBot(BotSettings settings, List<CachedCandle> candles,
+                     InvestStrategy investStrategy, OrderService orderService) {
+        this.settings = settings;
         this.candles = candles;
         this.investStrategy = investStrategy;
         this.orderService = orderService;
-        this.takeProfit = takeProfit;
-        this.stopLoss = stopLoss;
     }
 
     @Override
     public void notifyCandle(CachedCandle candle) {
         candles.add(candle);
         investStrategy.setLastIndex(candles.size() - 1);
+
+        cancelOrderIfNeed();
+
         checkForOpenLong();
         checkForOpenShort();
         checkForCloseLong();
@@ -44,50 +44,68 @@ public class InvestBot implements CandleObserver {
     private void checkForOpenLong() {
         if (investStrategy.isLongSignal() && (order == null || order.isShort())) {
             if (order != null && order.isShort()) {
-                orderService.sellShort(figi, getOrderMetadata(getLastCandle(), OrderReason.SIGNAL_LONG));
+                orderService.closeShort(formOrderInfo(getLastCandle(), OrderReason.SIGNAL_LONG));
             }
-            order = orderService.buyLong(figi, getOrderMetadata(getLastCandle(), OrderReason.SIGNAL_LONG)).orElse(null);
+            order = orderService.openLong(formOrderInfo(getLastCandle(), OrderReason.SIGNAL_LONG)).orElse(null);
         }
     }
 
     private void checkForOpenShort() {
         if (investStrategy.isShortSignal() && (order == null || order.isShort())) {
             if (order != null && order.isLong()) {
-                orderService.sellLong(figi, getOrderMetadata(getLastCandle(), OrderReason.SIGNAL_SHORT));
+                orderService.closeLong(formOrderInfo(getLastCandle(), OrderReason.SIGNAL_SHORT));
             }
-            order = orderService.buyShort(figi, getOrderMetadata(getLastCandle(), OrderReason.SIGNAL_SHORT)).orElse(null);
+            order = orderService.openShort(formOrderInfo(getLastCandle(), OrderReason.SIGNAL_SHORT)).orElse(null);
         }
     }
 
     private void checkForCloseLong() {
-        if (order == null) {
+        if (order == null || order.isShort()) {
             return;
         }
         var lastClosePrice = getLastCandle().getClosePrice();
-        var takeProfitMultiplier = takeProfit.add(BigDecimal.ONE);
-        var stopLossMultiplier = BigDecimal.ONE.subtract(stopLoss);
+        var takeProfitMultiplier = settings.getTakeProfit().add(BigDecimal.ONE);
+        var stopLossMultiplier = BigDecimal.ONE.subtract(settings.getStopLoss());
         if (order.getPrice().multiply(takeProfitMultiplier).compareTo(lastClosePrice) <= 0) {
-            orderService.sellLong(figi, getOrderMetadata(getLastCandle(), OrderReason.TAKE_PROFIT));
+            orderService.closeLong(formOrderInfo(getLastCandle(), OrderReason.TAKE_PROFIT));
             order = null;
         } else if (order.getPrice().multiply(stopLossMultiplier).compareTo(lastClosePrice) >= 0) {
-            orderService.sellLong(figi, getOrderMetadata(getLastCandle(), OrderReason.STOP_LOSS));
+            orderService.closeLong(formOrderInfo(getLastCandle(), OrderReason.STOP_LOSS));
             order = null;
         }
     }
 
     private void checkForCloseShort() {
-        if (order == null) {
+        if (order == null || order.isLong()) {
             return;
         }
         var lastClosePrice = getLastCandle().getClosePrice();
-        var takeProfitMultiplier = BigDecimal.ONE.subtract(takeProfit);
-        var stopLossMultiplier = stopLoss.add(BigDecimal.ONE);
+        var takeProfitMultiplier = BigDecimal.ONE.subtract(settings.getTakeProfit());
+        var stopLossMultiplier = settings.getStopLoss().add(BigDecimal.ONE);
         if (order.getPrice().multiply(takeProfitMultiplier).compareTo(lastClosePrice) >= 0) {
-            orderService.sellShort(figi, getOrderMetadata(getLastCandle(), OrderReason.TAKE_PROFIT));
+            orderService.closeShort(formOrderInfo(getLastCandle(), OrderReason.TAKE_PROFIT));
             order = null;
         } else if (order.getPrice().multiply(stopLossMultiplier).compareTo(lastClosePrice) <= 0) {
-            orderService.sellShort(figi, getOrderMetadata(getLastCandle(), OrderReason.STOP_LOSS));
+            orderService.closeShort(formOrderInfo(getLastCandle(), OrderReason.STOP_LOSS));
             order = null;
+        }
+    }
+
+    @Override
+    public void notifyNewOrder(Order order) {
+    }
+
+    @Override
+    public void notifySuccessfulOrder(Order order) {
+        if (this.order != null && this.order.getId().equals(order.getId())) {
+            this.order.updateOrder(order);
+        }
+    }
+
+    @Override
+    public void notifyFailedOrder(Order order) {
+        if (this.order != null && this.order.getId().equals(order.getId())) {
+            this.order = null;
         }
     }
 
@@ -95,7 +113,15 @@ public class InvestBot implements CandleObserver {
         return candles.get(candles.size() - 1);
     }
 
-    private OrderMetadata getOrderMetadata(CachedCandle candle, OrderReason reason) {
-        return new OrderMetadata(uuid, reason, candle.getClosePrice(), candle.getTime());
+    private CreateOrderInfo formOrderInfo(CachedCandle candle, OrderReason reason) {
+        return new CreateOrderInfo(settings.getUuid(), settings.getFigi(), reason, candle.getClosePrice(),
+                candle.getTime(), settings.getAccountId(), settings.getNumberOfLots());
+    }
+
+    private void cancelOrderIfNeed() {
+        if (order != null && order.isNew()) {
+            orderService.cancelOrder(settings.getAccountId(), order.getId());
+            order = null;
+        }
     }
 }

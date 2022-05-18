@@ -16,8 +16,8 @@ public class BotController {
     private final BotService botService;
 
     @PostMapping()
-    public void createBot(@RequestBody BotConfig config) {
-        botService.createBot(config);
+    public UUID createBot(@RequestBody BotConfig config) {
+        return botService.createBot(config);
     }
 
     @PostMapping("simulation")
