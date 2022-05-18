@@ -4,10 +4,7 @@ import org.springframework.stereotype.Repository;
 import ru.abelogur.tininvestrobot.dto.BotSettings;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class InvestBotInMemoryRepository implements InvestBotRepository {
@@ -17,6 +14,11 @@ public class InvestBotInMemoryRepository implements InvestBotRepository {
     @Override
     public Optional<BotSettings> getBotSettings(UUID botUuid) {
         return Optional.ofNullable(settingsMap.get(botUuid));
+    }
+
+    @Override
+    public List<BotSettings> getAllBotSettings() {
+        return new ArrayList<>(settingsMap.values());
     }
 
     @Override

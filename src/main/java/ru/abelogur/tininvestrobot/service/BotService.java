@@ -42,33 +42,19 @@ public class BotService {
     private final InvestBotRepository investBotRepository;
     private final CandleSteamsHolder candleSteamsHolder;
 
-    public UUID createBot(BotConfig config) {
+    public UUID createRealBot(BotConfig config) {
         var groupId = CandleGroupId.of(config.getFigi(), CandleInterval.CANDLE_INTERVAL_1_MIN);
         var candles = candleService.loadHistoricCandles(groupId);
-
-        var settings = new BotSettings()
-                .setUuid(UUID.randomUUID())
-                .setAccountId(getAccountId(config))
-                .setFigi(config.getFigi())
-                .setTakeProfit(config.getTakeProfit())
-                .setStopLoss(config.getStopLoss())
-                .setNumberOfLots(config.getNumberOfLots());
-
+        var accountId = getRealAccountId(config);
+        var settings = getBotSettings(config, accountId);
         return createBot(groupId, candles, settings, realOrderService).getSettings().getUuid();
     }
 
     public UUID createSandboxBot(BotConfig config) {
         var groupId = CandleGroupId.of(config.getFigi(), CandleInterval.CANDLE_INTERVAL_1_MIN);
         var candles = candleService.loadHistoricCandles(groupId);
-
-        var settings = new BotSettings()
-                .setUuid(UUID.randomUUID())
-                .setAccountId(getSandboxAccountId(config))
-                .setFigi(config.getFigi())
-                .setTakeProfit(config.getTakeProfit())
-                .setStopLoss(config.getStopLoss())
-                .setNumberOfLots(config.getNumberOfLots());
-
+        var accountId = getSandboxAccountId(config);
+        var settings = getBotSettings(config, accountId);
         candleSteamsHolder.addNewSubscription(groupId);
         return createBot(groupId, candles, settings, sandboxOrderService).getSettings().getUuid();
     }
@@ -77,13 +63,7 @@ public class BotService {
         var groupId = CandleGroupId.of(config.getFigi(), CandleInterval.CANDLE_INTERVAL_1_MIN);
         var candles = candleService.loadHistoricCandles(groupId, startSimulation);
 
-        var settings = new BotSettings()
-                .setUuid(UUID.randomUUID())
-                .setFigi(config.getFigi())
-                .setTakeProfit(config.getTakeProfit())
-                .setStopLoss(config.getStopLoss())
-                .setNumberOfLots(config.getNumberOfLots());
-
+        var settings = getBotSettings(config, "simulation");
         var bot = createBot(groupId, candles, settings, simulateOrderService);
         simulator.simulate(groupId, startSimulation);
         candleService.uncached(groupId);
@@ -102,7 +82,7 @@ public class BotService {
         return bot;
     }
 
-    private String getAccountId(BotConfig config) {
+    private String getRealAccountId(BotConfig config) {
         return Optional.ofNullable(config.getAccountId())
                 .or(() -> sdkService.getInvestApi().getUserService().getAccountsSync().stream()
                         .filter(account -> account.getStatus().equals(ACCOUNT_STATUS_OPEN)
@@ -113,10 +93,20 @@ public class BotService {
 
     private String getSandboxAccountId(BotConfig config) {
         return Optional.ofNullable(config.getAccountId())
-                .or(() -> sdkService.getInvestSandboxApi().getSandboxService().getAccountsSync().stream()
+                .or(() -> sdkService.getSandboxInvestApi().getSandboxService().getAccountsSync().stream()
                         .filter(account -> account.getStatus().equals(ACCOUNT_STATUS_OPEN)
                                 && account.getAccessLevel().equals(ACCOUNT_ACCESS_LEVEL_FULL_ACCESS))
                         .findFirst().map(Account::getId))
                 .orElseThrow(() -> new IllegalArgumentException("There aren't accounts"));
+    }
+
+    private BotSettings getBotSettings(BotConfig config, String accountId) {
+        return new BotSettings()
+                .setUuid(UUID.randomUUID())
+                .setAccountId(accountId)
+                .setFigi(config.getFigi())
+                .setTakeProfit(config.getTakeProfit())
+                .setStopLoss(config.getStopLoss())
+                .setNumberOfLots(config.getNumberOfLots());
     }
 }

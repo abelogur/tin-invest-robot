@@ -61,7 +61,7 @@ public class SandboxOrderService extends IntegrationOrderService {
     @Override
     protected PostOrderResponse buyMarket(CreateOrderInfo orderInfo) {
         var orderId = UUID.randomUUID().toString();
-        return sdkService.getInvestSandboxApi().getSandboxService().postOrderSync(orderInfo.getFigi(), orderInfo.getNumberOfLots(),
+        return sdkService.getSandboxInvestApi().getSandboxService().postOrderSync(orderInfo.getFigi(), orderInfo.getNumberOfLots(),
                 Quotation.getDefaultInstance(), OrderDirection.ORDER_DIRECTION_BUY, orderInfo.getAccountId(),
                 OrderType.ORDER_TYPE_MARKET, orderId);
     }
@@ -69,7 +69,7 @@ public class SandboxOrderService extends IntegrationOrderService {
     @Override
     protected PostOrderResponse sellMarket(CreateOrderInfo orderInfo) {
         var orderId = UUID.randomUUID().toString();
-        return sdkService.getInvestSandboxApi().getSandboxService().postOrderSync(orderInfo.getFigi(), orderInfo.getNumberOfLots(),
+        return sdkService.getSandboxInvestApi().getSandboxService().postOrderSync(orderInfo.getFigi(), orderInfo.getNumberOfLots(),
                 Quotation.getDefaultInstance(), OrderDirection.ORDER_DIRECTION_BUY, orderInfo.getAccountId(),
                 OrderType.ORDER_TYPE_MARKET, orderId);
     }
@@ -78,7 +78,7 @@ public class SandboxOrderService extends IntegrationOrderService {
     public boolean cancelOrder(String accountId, String orderId) {
         Optional<Order> order = orderHistoryRepository.get(orderId);
         try {
-            sdkService.getInvestSandboxApi().getSandboxService().cancelOrderSync(accountId, orderId);
+            sdkService.getSandboxInvestApi().getSandboxService().cancelOrderSync(accountId, orderId);
             order.ifPresent(observersHolder::notifyFailedOrderObservers);
         } catch (Exception e) {
             return false;
