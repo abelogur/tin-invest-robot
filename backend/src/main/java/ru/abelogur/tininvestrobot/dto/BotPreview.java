@@ -21,4 +21,5 @@ public class BotPreview {
     private Integer numberOfOrders;
     private BigDecimal profit;
     private BigDecimal profitPercentage;
+    private String currency;
 }

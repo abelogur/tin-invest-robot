@@ -59,7 +59,8 @@ public class BotService {
                             .setInstrumentTicket(instrument.getTicker())
                             .setNumberOfOrders(statistic.getOrders().size())
                             .setProfit(statistic.getProfit())
-                            .setProfitPercentage(statistic.getProfitPercentage());
+                            .setProfitPercentage(statistic.getProfitPercentage())
+                            .setCurrency(instrument.getCurrency());
                 }).collect(Collectors.toList());
     }
 
