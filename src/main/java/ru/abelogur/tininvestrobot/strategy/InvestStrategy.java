@@ -7,4 +7,6 @@ public interface InvestStrategy {
     boolean isShortSignal();
 
     void setLastIndex(int index);
+
+    StrategyCode getCode();
 }

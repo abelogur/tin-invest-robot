@@ -77,7 +77,10 @@ public class CandleSteamsHolder {
     }
 
     public void removeSubscription(CandleGroupId groupId) {
-        refreshers.remove(groupId);
+        if (refreshers.containsKey(groupId)) {
+            refreshers.get(groupId).cancel(false);
+            refreshers.remove(groupId);
+        }
     }
 
     private MarketDataSubscriptionService getSubscriptionService() {

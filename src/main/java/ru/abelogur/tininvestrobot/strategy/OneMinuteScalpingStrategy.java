@@ -1,5 +1,6 @@
 package ru.abelogur.tininvestrobot.strategy;
 
+import lombok.Getter;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.indicator.EMAIndicator;
 import ru.abelogur.tininvestrobot.indicator.SMAIndicator;
@@ -10,13 +11,21 @@ import java.util.List;
 
 public class OneMinuteScalpingStrategy implements InvestStrategy {
 
+    @Getter
+    private final StrategyCode code = StrategyCode.ONE_MINUTE_SCALPING;
+
     private final int STOCHASTIC_LENGTH = 5;
     private final int STOCHASTIC_SMOOTHING = 3;
 
     private int lastIndex;
+
+    @Getter
     private final ClosePriceIndicator closePriceIndicator;
+    @Getter
     private final EMAIndicator ema50Indicator;
+    @Getter
     private final EMAIndicator ema100Indicator;
+    @Getter
     private final SMAIndicator slowStochastic;
 
     public OneMinuteScalpingStrategy(List<CachedCandle> candles) {

@@ -1,15 +1,15 @@
 package ru.abelogur.tininvestrobot.repository;
 
-import ru.abelogur.tininvestrobot.dto.BotSettings;
+import ru.abelogur.tininvestrobot.domain.InvestBot;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface InvestBotRepository {
-    Optional<BotSettings> getBotSettings(UUID botUuid);
+    Optional<InvestBot> get(UUID botUuid);
 
-    List<BotSettings> getAllBotSettings();
+    List<InvestBot> getAll();
 
-    void saveBotSettings(BotSettings settings);
+    void save(InvestBot bot);
 }
