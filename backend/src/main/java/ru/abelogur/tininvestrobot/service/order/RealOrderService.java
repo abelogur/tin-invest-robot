@@ -1,8 +1,6 @@
 package ru.abelogur.tininvestrobot.service.order;
 
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.Order;
@@ -21,6 +19,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static ru.abelogur.tininvestrobot.helper.HelperUtils.delay;
+import static ru.abelogur.tininvestrobot.helper.HelperUtils.getStatusCodeToReconnect;
 
 @Slf4j
 @Service
@@ -75,7 +76,6 @@ public class RealOrderService extends IntegrationOrderService {
             if (response.hasPing()) {
                 log.info("Trades stream ping");
             } else if (response.hasOrderTrades()) {
-                log.info("Новые данные по сделкам: {}", response);
                 updateOrder(response.getOrderTrades());
             }
         };
@@ -104,18 +104,12 @@ public class RealOrderService extends IntegrationOrderService {
         return error -> {
             log.error(error.toString());
             if (error instanceof StatusRuntimeException
-                    && (((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.UNAVAILABLE)
-                    || ((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.INTERNAL))) {
+                    && getStatusCodeToReconnect().contains(((StatusRuntimeException) error).getStatus().getCode())) {
                 delay(1000);
                 log.info("Reconnect trade stream");
                 sdkService.getInvestApi().getOrdersStreamService()
                         .subscribeTrades(consumer, reconnect(consumer, accounts), accounts);
             }
         };
-    }
-
-    @SneakyThrows
-    private void delay(long millis) {
-        Thread.sleep(millis);
     }
 }

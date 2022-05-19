@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -15,11 +16,12 @@ public class BotPreview {
     private UUID id;
     private Instant start;
     private String strategy;
-    private BotType botType;
+    private BotEnv botEnv;
     private String instrument;
     private String instrumentTicket;
     private Integer numberOfOrders;
     private BigDecimal profit;
     private BigDecimal profitPercentage;
     private String currency;
+    private List<String> errors;
 }

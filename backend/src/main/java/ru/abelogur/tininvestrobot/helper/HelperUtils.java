@@ -1,9 +1,12 @@
 package ru.abelogur.tininvestrobot.helper;
 
+import io.grpc.Status;
+import lombok.SneakyThrows;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 
 public final class HelperUtils {
 
@@ -43,5 +46,14 @@ public final class HelperUtils {
             case CANDLE_INTERVAL_DAY: return ChronoUnit.YEARS.getDuration();
             default: throw new IllegalArgumentException("Invalid candle interval");
         }
+    }
+
+    public static Set<Status.Code> getStatusCodeToReconnect() {
+        return Set.of(Status.Code.UNAVAILABLE, Status.Code.INTERNAL);
+    }
+
+    @SneakyThrows
+    public static void delay(int millis) {
+        Thread.sleep(millis);
     }
 }

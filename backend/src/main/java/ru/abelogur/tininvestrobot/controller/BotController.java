@@ -23,17 +23,17 @@ public class BotController {
     }
 
     @PostMapping
-    public UUID createBot(@RequestBody BotConfig config) {
+    public BotPreview createBot(@RequestBody BotConfig config) {
         return botService.createRealBot(config);
     }
 
     @PostMapping("sandbox")
-    public UUID createSandbox(@RequestBody BotConfig config) {
+    public BotPreview createSandbox(@RequestBody BotConfig config) {
         return botService.createSandboxBot(config);
     }
 
     @PostMapping("simulation")
-    public UUID createSimulationBot(@RequestBody BotConfig config, @RequestParam Instant start) {
+    public BotPreview createSimulationBot(@RequestBody BotConfig config, @RequestParam Instant start) {
         return botService.createBotSimulation(config, start);
     }
 

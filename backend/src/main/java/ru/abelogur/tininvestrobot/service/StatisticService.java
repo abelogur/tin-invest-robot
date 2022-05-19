@@ -26,7 +26,7 @@ public class StatisticService {
 
     public StatisticDto getStatistic(UUID botUuid) {
         var settings = botRepository.get(botUuid)
-                .map(InvestBot::getSettings)
+                .map(InvestBot::getState)
                 .orElseThrow(() -> new IllegalArgumentException("Bot doesn't exist"));
         var orders = orderHistoryRepository.getAll(botUuid);
         if (orders.isEmpty()) {

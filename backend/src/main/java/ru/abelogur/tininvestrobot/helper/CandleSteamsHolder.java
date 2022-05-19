@@ -1,8 +1,6 @@
 package ru.abelogur.tininvestrobot.helper;
 
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
@@ -26,7 +24,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import static ru.abelogur.tininvestrobot.helper.HelperUtils.delay;
+import static ru.abelogur.tininvestrobot.helper.HelperUtils.getStatusCodeToReconnect;
 import static ru.tinkoff.piapi.contract.v1.SubscriptionInterval.SUBSCRIPTION_INTERVAL_FIVE_MINUTES;
 import static ru.tinkoff.piapi.contract.v1.SubscriptionInterval.SUBSCRIPTION_INTERVAL_ONE_MINUTE;
 
@@ -114,19 +115,13 @@ public class CandleSteamsHolder {
         return error -> {
             log.error(error.toString());
             if (error instanceof StatusRuntimeException
-                    && (((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.UNAVAILABLE)
-                || ((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.INTERNAL))) {
+                    && getStatusCodeToReconnect().contains(((StatusRuntimeException) error).getStatus().getCode())) {
                 delay(1000);
                 log.info("Reconnect candle stream");
                 sdkService.getInvestApi().getMarketDataStreamService()
                         .newStream("candles_stream", processor, reconnect(processor));
             }
         };
-    }
-
-    @SneakyThrows
-    private void delay(long millis) {
-        Thread.sleep(millis);
     }
 
     private void saveCandle(MarketDataResponse response) {
@@ -137,12 +132,19 @@ public class CandleSteamsHolder {
     }
 
     private void handleCandleSubscribe(MarketDataResponse response) {
-        var successCount = response.getSubscribeCandlesResponse().getCandlesSubscriptionsList().stream()
-                .filter(el -> el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS)).count();
-        var errorCount = response.getSubscribeTradesResponse().getTradeSubscriptionsList().stream()
-                .filter(el -> !el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS)).count();
-        log.info("удачных подписок на свечи: {}", successCount);
-        log.info("неудачных подписок на свечи: {}", errorCount);
+        var success = response.getSubscribeCandlesResponse().getCandlesSubscriptionsList().stream()
+                .filter(el -> el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS))
+                .collect(Collectors.toList());
+        var error = response.getSubscribeTradesResponse().getTradeSubscriptionsList().stream()
+                .filter(el -> !el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS))
+                .collect(Collectors.toList());
+
+        log.info("Удачных подписок на свечи: {}. {}", success.stream()
+                .map(it -> instrumentRepository.get(it.getFigi()))
+                .collect(Collectors.toList()), success.size());
+        log.info("Неудачных подписок на свечи: {}. {}", error.stream()
+                .map(it -> instrumentRepository.get(it.getFigi()))
+                .collect(Collectors.toList()), success.size());
     }
 
     private Runnable refreshCandles(CandleGroupId groupId, CandleInterval interval) {

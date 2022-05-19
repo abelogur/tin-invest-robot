@@ -2,8 +2,11 @@ package ru.abelogur.tininvestrobot.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.SubscriptionInterval;
+
+import java.time.Duration;
 
 @Getter
 @EqualsAndHashCode
@@ -22,6 +25,10 @@ public class CandleGroupId {
 
     public static CandleGroupId of(String figi, CandleInterval interval) {
         return new CandleGroupId(figi, interval.toString());
+    }
+
+    public static CandleGroupId of(String figi, Duration interval) {
+        return of(figi, HelperUtils.intervalFrom(interval));
     }
 
     public static CandleGroupId of(String figi, SubscriptionInterval subscriptionInterval) {
