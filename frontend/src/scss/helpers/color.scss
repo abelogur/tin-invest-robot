@@ -1,0 +1,101 @@
+$additional_color: #3746a5;
+$base_color: #3e4eb8;
+$text_color:#4a4a4a;
+$headline_color: #485465;
+$new_message-color: rgba(62, 78, 184, 0.09);
+$green :#89c540;
+$paragraph_color:#9b9b9b;
+$monitoring_icon_color: #bfbfbf;
+$icon_gray:#d8d8d8;
+$gray: #dcdde0;
+$gray-bg: #e3e4e9;
+$border-gray: #ebeaea;
+$red:#ec4544;
+$icon-bg:#ecedf8;
+$yellow:#f0dd38;
+$orange:#ffad33;
+$table-color: #f3f3f3;
+$panel_color: #f6f6f7;
+$sub-sub-item_color:#f9f8f9;
+$sub-item_color: #fbfbfc;
+$white_color: #fff;
+$blue: #4b97df;
+
+$status-colors: (
+  blue: $blue,
+  green: $green,
+  yellow: $yellow,
+  orange: $orange,
+  red: $red,
+  unknown: black
+
+);
+
+.opacity {
+  opacity: 0.5;
+}
+.base-bg {
+  background-color: $base_color;
+}
+
+.gray-bg {
+  background-color: $gray-bg;
+}
+
+.additional-bg {
+  background-color: $additional_color;
+}
+
+.panel_bg {
+  background-color: $panel_color;
+}
+
+.sub-item_bg {
+  background-color: $sub-item_color;
+}
+
+.sub-sub-item_bg {
+  background-color: $sub-sub-item_color;
+}
+
+.white_bg {
+  background-color: $white_color;
+}
+
+.headline_color {
+  color: $headline_color;
+}
+.white-color {
+  color: $white_color;
+}
+.text_color {
+  color: $text_color;
+}
+.base-color {
+  color: $base_color;
+}
+.paragraph-color{
+  color:$paragraph_color;
+}
+
+.border-gray-top {
+  border-top: 1px solid $border-gray;
+}
+
+.icon-color {
+  background: $icon_gray;
+}
+.icon-bg {
+  background: $icon-bg;
+}
+.new_message-color {
+  background-color: $new_message-color;
+}
+.monitoring_icon-color {
+  color: $monitoring_icon_color;
+}
+.error-color {
+  color: $red;
+}
+
+

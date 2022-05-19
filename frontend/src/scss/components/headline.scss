@@ -1,0 +1,16 @@
+.headline3 {
+  font-size: 14px;
+}
+.headline1{
+  font-size: 16px;
+  @media screen  and (min-width: $lg){
+    font-size: 18.3px;
+  }
+}
+.headline2{
+  font-size: 14px;
+  @media screen  and (min-width: $lg){
+    font-size: 16px;
+  }
+}
+

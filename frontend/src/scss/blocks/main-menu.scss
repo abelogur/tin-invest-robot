@@ -1,0 +1,27 @@
+.menu {
+  height: 52px;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  .menu_main_active {
+    //flex: 0 0 300px;
+  }
+  .menu_logo {
+    //height: 35px;
+  }
+
+  .menu_item {
+    outline: none;
+    margin-right: 30.5px;
+    cursor: pointer;
+    opacity: 0.5;
+    .menu_item_img {
+      margin-right: 10.5px;
+    }
+    &_active {
+      opacity: 1;
+    }
+  }
+}

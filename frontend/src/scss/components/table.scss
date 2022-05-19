@@ -1,0 +1,49 @@
+table {
+  border-spacing: 0;
+}
+th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: normal;
+  padding-left: 15px;
+}
+td {
+  font-size: 14px;
+  font-weight: normal;
+  padding-left: 15px;
+}
+tr.body {
+  background-color: white;
+  border-bottom: 2px solid $gray-bg;
+  td {
+    padding: 15px;
+    border-bottom: 3px solid $gray-bg;
+    vertical-align: middle;
+    &.vertical-align-middle {
+      vertical-align: middle;
+    }
+  }
+}
+
+
+.report {
+  td {
+    height: 40px;
+    padding-left: 15px;
+  }
+  tr:nth-child(even) {
+    background-color: $table-color;
+  }
+  tr:nth-child(odd) {
+    background-color: $sub-item_color;
+  }
+  tr:nth-child(1) {
+    td {
+      border-top: 5px solid white;
+    }
+  }
+}
+
+tr td.vertical-align-middle {
+  vertical-align: middle !important;
+}
