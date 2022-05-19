@@ -1,0 +1,16 @@
+.paragraph {
+  font-size: 12.6px;
+  &_medium {
+    font-size: 12px;
+  }
+  &_midle {
+    font-size: 10px;
+    @media screen  and (min-width: $xl){
+      font-size: 12px;
+    }
+  }
+  &_small {
+    font-size: 10px;
+    padding-top: 6px;
+  }
+}

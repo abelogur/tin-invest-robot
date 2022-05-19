@@ -1,0 +1,29 @@
+html {
+  height: 100%;
+}
+body {
+  margin: 0;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+  //height:100%;
+}
+a {
+  text-decoration: none;
+}
+h2 {
+  margin: 0;
+}
+.outline {
+  outline: none;
+}
+p {
+  margin: 0;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+.main {
+  min-height: 100%;
+}
+
+

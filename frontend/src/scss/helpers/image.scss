@@ -1,0 +1,43 @@
+.triangle-bottom {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 10px 0 10px;
+  border-color: #727272 transparent transparent transparent;
+}
+.triangle-top {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  border-color: transparent transparent #727272 transparent;
+
+}
+
+.border-radius-100 {
+  border-radius: 100%;
+}
+
+
+.icon {
+  height: 15px;
+}
+
+.middle-icon {
+  height: 20px;
+}
+
+.rotate {
+  transform: rotate(180deg);
+}
+
+
+.close {
+  right: 3px;
+  top: 3px;
+  width: 15px;
+}
+
+.img {
+  width: 20px;
+}
