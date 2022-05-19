@@ -17,6 +17,7 @@ public class InvestBot implements CandleObserver, OrderObserver {
     private final CandleGroupId groupId;
     @Getter
     private final BotSettings settings;
+    @Getter
     private final List<CachedCandle> candles;
     @Getter
     private final InvestStrategy investStrategy;

@@ -7,9 +7,17 @@ import ru.abelogur.tininvestrobot.indicator.SMAIndicator;
 import ru.abelogur.tininvestrobot.indicator.StochasticOscillator;
 import ru.abelogur.tininvestrobot.indicator.helper.ClosePriceIndicator;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OneMinuteScalpingStrategy implements InvestStrategy {
+
+    public static final String EMA50 = "EMA50";
+    public static final String EMA100 = "EMA100";
+    public static final String STOCHASTIC = "Stochastic";
 
     @Getter
     private final StrategyCode code = StrategyCode.ONE_MINUTE_SCALPING;
@@ -49,6 +57,20 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
     @Override
     public void setLastIndex(int index) {
         lastIndex = index;
+    }
+
+    @Override
+    public Map<String, List<BigDecimal>> getValues(int start, int finish) {
+        Map<String, List<BigDecimal>> result = new HashMap<>();
+        result.put(EMA50, new ArrayList<>());
+        result.put(EMA100, new ArrayList<>());
+        result.put(STOCHASTIC, new ArrayList<>());
+        for (int i = 0; i <= finish; i++) {
+            result.get(EMA50).add(ema50Indicator.getValue(i));
+            result.get(EMA100).add(ema100Indicator.getValue(i));
+            result.get(STOCHASTIC).add(slowStochastic.getValue(i));
+        }
+        return result;
     }
 
     private boolean isEma50AboveEma100() {
