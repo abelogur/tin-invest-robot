@@ -36,4 +36,9 @@ public class BotController {
     public UUID createSimulationBot(@RequestBody BotConfig config, @RequestParam Instant start) {
         return botService.createBotSimulation(config, start);
     }
+
+    @DeleteMapping("{botUuid}")
+    public void removeBot(@PathVariable UUID botUuid) {
+        botService.removeBot(botUuid);
+    }
 }

@@ -2,6 +2,7 @@ package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.abelogur.tininvestrobot.domain.InvestBot;
 import ru.abelogur.tininvestrobot.domain.OrderAction;
 import ru.abelogur.tininvestrobot.domain.TradeType;
 import ru.abelogur.tininvestrobot.dto.StatisticDto;
@@ -24,7 +25,8 @@ public class StatisticService {
     private final InvestBotRepository botRepository;
 
     public StatisticDto getStatistic(UUID botUuid) {
-        var settings = botRepository.getBotSettings(botUuid)
+        var settings = botRepository.get(botUuid)
+                .map(InvestBot::getSettings)
                 .orElseThrow(() -> new IllegalArgumentException("Bot doesn't exist"));
         var orders = orderHistoryRepository.getAll(botUuid);
         if (orders.isEmpty()) {

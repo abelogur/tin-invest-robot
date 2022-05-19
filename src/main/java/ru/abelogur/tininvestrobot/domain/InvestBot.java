@@ -3,6 +3,7 @@ package ru.abelogur.tininvestrobot.domain;
 import lombok.Getter;
 import ru.abelogur.tininvestrobot.dto.BotSettings;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
+import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.abelogur.tininvestrobot.service.OrderObserver;
 import ru.abelogur.tininvestrobot.service.order.OrderService;
 import ru.abelogur.tininvestrobot.strategy.InvestStrategy;
@@ -12,6 +13,8 @@ import java.util.List;
 
 public class InvestBot implements CandleObserver, OrderObserver {
 
+    @Getter
+    private final CandleGroupId groupId;
     @Getter
     private final BotSettings settings;
     private final List<CachedCandle> candles;
@@ -23,6 +26,10 @@ public class InvestBot implements CandleObserver, OrderObserver {
 
     public InvestBot(BotSettings settings, List<CachedCandle> candles,
                      InvestStrategy investStrategy, OrderService orderService) {
+        var figi = settings.getFigi();
+        var interval = HelperUtils.intervalFrom(investStrategy.getCode().getInterval());
+        this.groupId = CandleGroupId.of(figi, interval);
+
         this.settings = settings;
         this.candles = candles;
         this.investStrategy = investStrategy;

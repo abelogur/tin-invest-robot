@@ -43,4 +43,8 @@ public class OrderObserversHolder {
     public void addSpecifiedObserver(UUID uuid, OrderObserver observer) {
         specifiedObservers.putIfAbsent(uuid, observer);
     }
+
+    public void removeSpecifiedObserver(UUID uuid) {
+        specifiedObservers.remove(uuid);
+    }
 }

@@ -92,6 +92,18 @@ public class BotService {
         return bot.getSettings().getUuid();
     }
 
+    public void removeBot(UUID botUuid) {
+        investBotRepository.get(botUuid)
+                .ifPresent(bot -> {
+                    var groupId = bot.getGroupId();
+                    candleService.uncached(groupId);
+                    candleService.removeObserver(groupId, bot);
+                    investBotRepository.remove(botUuid);
+                    candleSteamsHolder.removeSubscription(groupId);
+                    orderObserversHolder.removeSpecifiedObserver(botUuid);
+                });
+    }
+
     private InvestBot createBot(CandleGroupId groupId, SortedSet<CachedCandle> candles,
                                 BotSettings settings, OrderService orderService) {
         var candleList = new ArrayList<>(candles);

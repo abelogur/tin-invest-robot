@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
+import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 import ru.abelogur.tininvestrobot.service.CandleService;
 import ru.abelogur.tininvestrobot.service.SdkService;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -36,13 +37,15 @@ public class CandleSteamsHolder {
     private final SdkService sdkService;
     private final CandleService candleService;
     private final InstrumentRepository instrumentRepository;
+    private final InvestBotRepository investBotRepository;
     private final MarketDataSubscriptionService subscriptionService;
 
     public CandleSteamsHolder(SdkService sdkService, CandleService candleService,
-                              InstrumentRepository instrumentRepository) {
+                              InstrumentRepository instrumentRepository, InvestBotRepository investBotRepository) {
         this.sdkService = sdkService;
         this.candleService = candleService;
         this.instrumentRepository = instrumentRepository;
+        this.investBotRepository = investBotRepository;
         this.subscriptionService = getSubscriptionService();
     }
 
@@ -77,7 +80,12 @@ public class CandleSteamsHolder {
     }
 
     public void removeSubscription(CandleGroupId groupId) {
-        if (refreshers.containsKey(groupId)) {
+        CandleInterval interval = CandleInterval.valueOf(groupId.getInterval());
+        if (interval.equals(CandleInterval.CANDLE_INTERVAL_1_MIN)) {
+            subscriptionService.unsubscribeCandles(List.of(groupId.getFigi()), SUBSCRIPTION_INTERVAL_ONE_MINUTE);
+        } else if (interval.equals(CandleInterval.CANDLE_INTERVAL_5_MIN)) {
+            subscriptionService.unsubscribeCandles(List.of(groupId.getFigi()), SUBSCRIPTION_INTERVAL_FIVE_MINUTES);
+        } else if (refreshers.containsKey(groupId) && investBotRepository.getByGroupId(groupId).isEmpty()) {
             refreshers.get(groupId).cancel(false);
             refreshers.remove(groupId);
         }
