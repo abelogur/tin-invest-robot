@@ -18,6 +18,9 @@ public class IndicatorService {
     private final InvestBotRepository investBotRepository;
 
     public Optional<Chart> getIndicators(UUID botUuid, Instant start, @Nullable Instant finish) {
+        if (finish != null && start.isAfter(finish)) {
+            throw new IllegalArgumentException("start is after finish");
+        }
         var bot = investBotRepository.get(botUuid)
                 .orElseThrow(() -> new IllegalArgumentException("Not Found"));
         var candles = bot.getCandles();
@@ -30,7 +33,7 @@ public class IndicatorService {
         for (int i = 0; i < candles.size(); i++) {
             if (startIndex == -1 && !candles.get(i).getTime().isBefore(start)) {
                 startIndex = i;
-            } else if (finish != null && finishIndex == -1 && !candles.get(i).getTime().isBefore(finish)) {
+            } else if (finish != null && finishIndex == -1 && candles.get(i).getTime().isAfter(finish)) {
                 finishIndex = i - 1;
             }
             if (startIndex != -1 && finishIndex != - 1) {
