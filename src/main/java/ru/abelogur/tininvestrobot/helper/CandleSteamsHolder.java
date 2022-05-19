@@ -1,5 +1,8 @@
 package ru.abelogur.tininvestrobot.helper;
 
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
@@ -102,9 +105,28 @@ public class CandleSteamsHolder {
             }
         };
 
-        Consumer<Throwable> onErrorCallback = error -> log.error(error.toString());
+        Consumer<Throwable> onErrorCallback = error -> reconnect(processor).accept(error);
         return sdkService.getInvestApi().getMarketDataStreamService()
                 .newStream("candles_stream", processor, onErrorCallback);
+    }
+
+    private Consumer<Throwable> reconnect(StreamProcessor<MarketDataResponse> processor) {
+        return error -> {
+            log.error(error.toString());
+            if (error instanceof StatusRuntimeException
+                    && (((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.UNAVAILABLE)
+                || ((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.INTERNAL))) {
+                delay(1000);
+                log.info("Reconnect candle stream");
+                sdkService.getInvestApi().getMarketDataStreamService()
+                        .newStream("candles_stream", processor, reconnect(processor));
+            }
+        };
+    }
+
+    @SneakyThrows
+    private void delay(long millis) {
+        Thread.sleep(millis);
     }
 
     private void saveCandle(MarketDataResponse response) {

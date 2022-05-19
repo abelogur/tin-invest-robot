@@ -59,7 +59,7 @@ public class InvestBot implements CandleObserver, OrderObserver {
     }
 
     private void checkForOpenShort() {
-        if (investStrategy.isShortSignal() && (order == null || order.isShort())) {
+        if (investStrategy.isShortSignal() && (order == null || order.isLong())) {
             if (order != null && order.isLong()) {
                 orderService.closeLong(formOrderInfo(getLastCandle(), OrderReason.SIGNAL_SHORT));
             }

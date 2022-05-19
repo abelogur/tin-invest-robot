@@ -92,7 +92,7 @@ public class RealOrderService extends IntegrationOrderService {
                 .ifPresent(order -> {
                     order.updateOrder(
                             OrderStatus.from(state.getExecutionReportStatus()),
-                            MapperUtils.moneyValueToBigDecimal(state.getTotalOrderAmount()),
+                            MapperUtils.moneyValueToBigDecimal(state.getExecutedOrderPrice()),
                             MapperUtils.moneyValueToBigDecimal(state.getExecutedCommission())
                     );
                     orderHistoryRepository.update(order);
@@ -104,8 +104,10 @@ public class RealOrderService extends IntegrationOrderService {
         return error -> {
             log.error(error.toString());
             if (error instanceof StatusRuntimeException
-                    && ((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.UNAVAILABLE)) {
+                    && (((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.UNAVAILABLE)
+                    || ((StatusRuntimeException) error).getStatus().getCode().equals(Status.Code.INTERNAL))) {
                 delay(1000);
+                log.info("Reconnect trade stream");
                 sdkService.getInvestApi().getOrdersStreamService()
                         .subscribeTrades(consumer, reconnect(consumer, accounts), accounts);
             }
