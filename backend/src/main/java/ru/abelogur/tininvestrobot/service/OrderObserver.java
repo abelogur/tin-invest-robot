@@ -1,11 +1,15 @@
 package ru.abelogur.tininvestrobot.service;
 
 import ru.abelogur.tininvestrobot.domain.Order;
+import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
+import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 public interface OrderObserver {
-    void notifyNewOrder(Order order);
+    default void notifyNewOrder(Order order) {}
 
-    void notifySuccessfulOrder(Order order);
+    default void notifySuccessfulOrder(Order order) {}
 
-    void notifyFailedOrder(Order order);
+    default void notifyFailedOrder(Order order) {}
+
+    default void notifyError(CreateOrderInfo info, ApiRuntimeException e) {}
 }

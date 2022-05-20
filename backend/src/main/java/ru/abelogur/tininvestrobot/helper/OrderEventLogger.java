@@ -3,7 +3,9 @@ package ru.abelogur.tininvestrobot.helper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.Order;
+import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
 import ru.abelogur.tininvestrobot.service.OrderObserver;
+import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 @Slf4j
 @Component
@@ -14,9 +16,9 @@ public class OrderEventLogger implements OrderObserver {
         log.info(
                 "Order is opened. Instrument {}. {} {} by reason {} at {}. price {}",
                 order.getInstrumentName(),
-                order.getAction().name().toLowerCase(),
-                order.getType().name().toLowerCase(),
-                order.getReason().name().toLowerCase(),
+                order.getAction().name(),
+                order.getType().name(),
+                order.getReason().name(),
                 order.getTime(),
                 order.getPrice()
         );
@@ -36,6 +38,15 @@ public class OrderEventLogger implements OrderObserver {
         log.info(
                 "Order is failed. Instrument {}",
                 order.getInstrumentName()
+        );
+    }
+
+    @Override
+    public void notifyError(CreateOrderInfo info, ApiRuntimeException e) {
+        log.info(
+                "Cannot start order. Order reason is {}. Error message is {}",
+                info.getReason(),
+                e.getMessage()
         );
     }
 }

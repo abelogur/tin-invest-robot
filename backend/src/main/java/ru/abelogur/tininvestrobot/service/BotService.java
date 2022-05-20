@@ -117,6 +117,7 @@ public class BotService {
                         .filter(account -> account.getStatus().equals(ACCOUNT_STATUS_OPEN)
                                 && account.getAccessLevel().equals(ACCOUNT_ACCESS_LEVEL_FULL_ACCESS))
                         .findFirst().map(Account::getId))
+                .or(() -> Optional.of(sdkService.getSandboxInvestApi().getSandboxService().openAccountSync()))
                 .orElseThrow(() -> new IllegalArgumentException("There aren't accounts"));
     }
 
@@ -157,6 +158,7 @@ public class BotService {
                 .setNumberOfOrders(statistic.getOrders().size())
                 .setProfit(statistic.getProfit())
                 .setProfitPercentage(statistic.getProfitPercentage())
-                .setCurrency(instrument.getCurrency());
+                .setCurrency(instrument.getCurrency())
+                .setErrors(bot.getState().getErrors());
     }
 }

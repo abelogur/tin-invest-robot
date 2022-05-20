@@ -39,6 +39,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }
@@ -61,6 +62,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }
@@ -83,6 +85,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }
@@ -105,6 +108,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }

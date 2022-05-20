@@ -25,7 +25,7 @@ public class BotState {
     private int numberOfLots = 1;
     private boolean marginAvailable = false;
 
-    private List<String> errors = new ArrayList<>();
+    private List<OrderError> errors = new ArrayList<>();
 
     public String getFigi() {
         return groupId.getFigi();

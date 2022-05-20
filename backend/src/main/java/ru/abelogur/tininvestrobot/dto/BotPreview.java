@@ -3,9 +3,11 @@ package ru.abelogur.tininvestrobot.dto;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import ru.abelogur.tininvestrobot.domain.OrderError;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,5 +25,5 @@ public class BotPreview {
     private BigDecimal profit;
     private BigDecimal profitPercentage;
     private String currency;
-    private List<String> errors;
+    private List<OrderError> errors = new ArrayList<>();
 }

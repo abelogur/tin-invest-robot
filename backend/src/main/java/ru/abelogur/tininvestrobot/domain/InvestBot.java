@@ -5,8 +5,10 @@ import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
 import ru.abelogur.tininvestrobot.service.OrderObserver;
 import ru.abelogur.tininvestrobot.service.order.OrderService;
 import ru.abelogur.tininvestrobot.strategy.InvestStrategy;
+import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 public class InvestBot implements CandleObserver, OrderObserver {
@@ -95,10 +97,6 @@ public class InvestBot implements CandleObserver, OrderObserver {
     }
 
     @Override
-    public void notifyNewOrder(Order order) {
-    }
-
-    @Override
     public void notifySuccessfulOrder(Order order) {
         if (this.order != null && this.order.getId().equals(order.getId())) {
             this.order.updateOrder(order);
@@ -110,6 +108,12 @@ public class InvestBot implements CandleObserver, OrderObserver {
         if (this.order != null && this.order.getId().equals(order.getId())) {
             this.order = null;
         }
+    }
+
+    @Override
+    public void notifyError(CreateOrderInfo info, ApiRuntimeException e) {
+        var error = new OrderError(info.getReason(), e.getMessage(), e.getCode(), Instant.now());
+        this.getState().getErrors().add(error);
     }
 
     private CachedCandle getLastCandle() {
