@@ -24,6 +24,7 @@ public class BotState {
     private BigDecimal stopLoss;
     private int numberOfLots = 1;
     private boolean marginAvailable = false;
+    private String telegramBotChatId;
 
     private List<OrderError> errors = new ArrayList<>();
 

@@ -16,6 +16,7 @@ public class Order {
     private UUID botUuid;
     private TradeType type;
     private BigDecimal price;
+    private int numberOfLots;
     private BigDecimal commission;
     private Instant time;
     private OrderReason reason;

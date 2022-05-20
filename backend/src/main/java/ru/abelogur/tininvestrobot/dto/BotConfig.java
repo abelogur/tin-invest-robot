@@ -13,6 +13,7 @@ public class BotConfig {
     private String accountId;
     private Integer numberOfLots = 1;
     private StrategyCode strategyCode = StrategyCode.ONE_MINUTE_SCALPING;
+    private String telegramBotChatId;
 
     private StrategiesConfig strategiesConfig;
 }

@@ -2,6 +2,8 @@ app:
   name: Invest Bot
   config:
     token: ${INVEST_API_TOKEN:}
+  telegram:
+    token: 5338570141:AAFjQBo9t0HuN7vYr739yFrChd2d6OjBo2s
 
 server:
   port: 8090

@@ -38,6 +38,7 @@ public class BotService {
     private final OrderObserversHolder orderObserversHolder;
     private final CandleSteamsHolder candleSteamsHolder;
     private final Simulator simulator;
+    private final TelegramNotification telegramNotification;
 
     private final RealOrderService realOrderService;
     private final SandboxOrderService sandboxOrderService;
@@ -89,6 +90,7 @@ public class BotService {
                     investBotRepository.remove(botUuid);
                     candleSteamsHolder.removeSubscription(groupId);
                     orderObserversHolder.removeSpecifiedObserver(botUuid);
+                    telegramNotification.removeObserver(botUuid);
                 });
     }
 
@@ -98,6 +100,9 @@ public class BotService {
         var bot = new InvestBot(state, candleList, investStrategy, orderService);
         candleService.addObserver(state.getGroupId(), bot);
         orderObserversHolder.addSpecifiedObserver(state.getUuid(), bot);
+        if (config.getTelegramBotChatId() != null) {
+            telegramNotification.addObserver(bot.getState().getUuid(), config.getTelegramBotChatId());
+        }
         investBotRepository.save(bot);
         return bot;
     }
@@ -132,7 +137,8 @@ public class BotService {
                 .setTakeProfit(config.getTakeProfit())
                 .setStopLoss(config.getStopLoss())
                 .setNumberOfLots(config.getNumberOfLots())
-                .setMarginAvailable(isMarginAvailable);
+                .setMarginAvailable(isMarginAvailable)
+                .setTelegramBotChatId(config.getTelegramBotChatId());
     }
 
     private boolean isMarginAvailable(String accountId) {
@@ -159,6 +165,7 @@ public class BotService {
                 .setProfit(statistic.getProfit())
                 .setProfitPercentage(statistic.getProfitPercentage())
                 .setCurrency(instrument.getCurrency())
+                .setTelegramBotChatId(state.getTelegramBotChatId())
                 .setErrors(bot.getState().getErrors());
     }
 }
