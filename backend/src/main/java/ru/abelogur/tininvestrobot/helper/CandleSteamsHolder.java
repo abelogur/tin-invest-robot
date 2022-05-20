@@ -4,6 +4,7 @@ import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
+import ru.abelogur.tininvestrobot.domain.CachedInstrument;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
@@ -141,10 +142,12 @@ public class CandleSteamsHolder {
 
         log.info("Удачных подписок на свечи: {}. {}", success.stream()
                 .map(it -> instrumentRepository.get(it.getFigi()))
-                .collect(Collectors.toList()), success.size());
+                .map(CachedInstrument::getName)
+                .collect(Collectors.joining(", ")), success.size());
         log.info("Неудачных подписок на свечи: {}. {}", error.stream()
                 .map(it -> instrumentRepository.get(it.getFigi()))
-                .collect(Collectors.toList()), success.size());
+                .map(CachedInstrument::getName)
+                .collect(Collectors.joining(", ")), error.size());
     }
 
     private Runnable refreshCandles(CandleGroupId groupId, CandleInterval interval) {
