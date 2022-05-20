@@ -51,7 +51,7 @@ public class RealOrderService extends IntegrationOrderService {
     protected PostOrderResponse sellMarket(CreateOrderInfo orderInfo) {
         var orderId = UUID.randomUUID().toString();
         return sdkService.getInvestApi().getOrdersService().postOrderSync(orderInfo.getFigi(), orderInfo.getNumberOfLots(),
-                Quotation.getDefaultInstance(), OrderDirection.ORDER_DIRECTION_BUY, orderInfo.getAccountId(),
+                Quotation.getDefaultInstance(), OrderDirection.ORDER_DIRECTION_SELL, orderInfo.getAccountId(),
                 OrderType.ORDER_TYPE_MARKET, orderId);
     }
 
