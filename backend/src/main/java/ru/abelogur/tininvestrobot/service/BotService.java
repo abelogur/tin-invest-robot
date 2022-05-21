@@ -1,6 +1,7 @@
 package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.*;
 import ru.abelogur.tininvestrobot.dto.BotConfig;
@@ -38,11 +39,12 @@ public class BotService {
     private final OrderObserversHolder orderObserversHolder;
     private final CandleSteamsHolder candleSteamsHolder;
     private final Simulator simulator;
-    private final TelegramNotification telegramNotification;
 
     private final RealOrderService realOrderService;
     private final SandboxOrderService sandboxOrderService;
     private final SimulateOrderService simulateOrderService;
+
+    private Optional<TelegramNotification> telegramNotification = Optional.empty();
 
     public List<BotPreview> getBotsPreview() {
         return investBotRepository.getAll().stream()
@@ -51,7 +53,7 @@ public class BotService {
     }
 
     public BotPreview createRealBot(BotConfig config) {
-        var groupId =  CandleGroupId.of(config.getFigi(), config.getStrategyCode().getInterval());
+        var groupId = CandleGroupId.of(config.getFigi(), config.getStrategyCode().getInterval());
         var candles = candleService.loadHistoricCandles(groupId);
         var accountId = getRealAccountId(config);
         var state = getBotState(config, accountId, BotEnv.REAL, groupId, isMarginAvailable(accountId));
@@ -90,7 +92,7 @@ public class BotService {
                     investBotRepository.remove(botUuid);
                     candleSteamsHolder.removeSubscription(groupId);
                     orderObserversHolder.removeSpecifiedObserver(botUuid);
-                    telegramNotification.removeObserver(botUuid);
+                    telegramNotification.ifPresent(it -> it.removeObserver(botUuid));
                 });
     }
 
@@ -101,7 +103,8 @@ public class BotService {
         candleService.addObserver(state.getGroupId(), bot);
         orderObserversHolder.addSpecifiedObserver(state.getUuid(), bot);
         if (config.getTelegramBotChatId() != null) {
-            telegramNotification.addObserver(bot.getState().getUuid(), config.getTelegramBotChatId());
+            telegramNotification
+                    .ifPresent(it -> it.addObserver(bot.getState().getUuid(), config.getTelegramBotChatId()));
         }
         investBotRepository.save(bot);
         return bot;
@@ -167,5 +170,10 @@ public class BotService {
                 .setCurrency(instrument.getCurrency())
                 .setTelegramBotChatId(state.getTelegramBotChatId())
                 .setErrors(bot.getState().getErrors());
+    }
+
+    @Autowired(required = false)
+    public void setTelegramNotification(TelegramNotification telegramNotification) {
+        this.telegramNotification = Optional.of(telegramNotification);
     }
 }

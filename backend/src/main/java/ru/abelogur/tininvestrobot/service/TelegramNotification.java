@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Component
+@ConditionalOnProperty(prefix = "app.telegram", name = "token")
 public class TelegramNotification implements OrderObserver {
 
     private final String START_COMMAND = "/start";
