@@ -1,7 +1,9 @@
 package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
 import ru.abelogur.tininvestrobot.dto.chart.Chart;
 import ru.abelogur.tininvestrobot.dto.chart.ChartIndicators;
 import ru.abelogur.tininvestrobot.dto.chart.ChartPoint;
@@ -20,10 +22,10 @@ public class IndicatorService {
 
     public Optional<Chart> getIndicators(UUID botUuid, Instant start, @Nullable Instant finish) {
         if (finish != null && start.isAfter(finish)) {
-            throw new IllegalArgumentException("start is after finish");
+            throw new RestRuntimeException("Дата начала должна быть раньше даты конца", HttpStatus.BAD_REQUEST);
         }
         var bot = investBotRepository.get(botUuid)
-                .orElseThrow(() -> new IllegalArgumentException("Not Found"));
+                .orElseThrow(() -> new RestRuntimeException("Бот не найдет", HttpStatus.NOT_FOUND));
         var candles = bot.getCandles();
         if (candles.size() < 2) {
             return Optional.empty();

@@ -1,7 +1,9 @@
 package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
 import ru.abelogur.tininvestrobot.domain.InvestBot;
 import ru.abelogur.tininvestrobot.domain.OrderAction;
 import ru.abelogur.tininvestrobot.domain.TradeType;
@@ -29,7 +31,7 @@ public class StatisticService {
     public StatisticDto getStatistic(UUID botUuid) {
         var settings = botRepository.get(botUuid)
                 .map(InvestBot::getState)
-                .orElseThrow(() -> new IllegalArgumentException("Bot doesn't exist"));
+                .orElseThrow(() -> new RestRuntimeException("Бота с таким uuid не найден", HttpStatus.NOT_FOUND));
         var orders = orderHistoryRepository.getAll(botUuid);
         if (orders.isEmpty()) {
             return StatisticDto.empty();

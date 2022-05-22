@@ -27,5 +27,6 @@ public class BotPreview {
     private BigDecimal profitPercentage;
     private String currency;
     private String telegramBotChatId;
+    private String iconUrl;
     private List<OrderError> errors = new ArrayList<>();
 }

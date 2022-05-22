@@ -1,7 +1,9 @@
 package ru.abelogur.tininvestrobot.service.candle;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.dto.LoadPeriod;
 import ru.abelogur.tininvestrobot.helper.HelperUtils;
@@ -68,7 +70,7 @@ public class CandleHistoryLoader {
             case CANDLE_INTERVAL_DAY:
                 return finish.minus(365 * 3, ChronoUnit.DAYS);
             default:
-                throw new IllegalArgumentException("Invalid candle interval");
+                throw new RestRuntimeException("Invalid candle interval", HttpStatus.BAD_REQUEST);
         }
     }
 

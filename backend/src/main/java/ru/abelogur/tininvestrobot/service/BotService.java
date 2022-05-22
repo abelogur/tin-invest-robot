@@ -2,7 +2,9 @@ package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
 import ru.abelogur.tininvestrobot.domain.*;
 import ru.abelogur.tininvestrobot.dto.BotConfig;
 import ru.abelogur.tininvestrobot.dto.BotEnv;
@@ -114,7 +116,7 @@ public class BotService {
                         .filter(account -> account.getStatus().equals(ACCOUNT_STATUS_OPEN)
                                 && account.getAccessLevel().equals(ACCOUNT_ACCESS_LEVEL_FULL_ACCESS))
                         .findFirst().map(Account::getId))
-                .orElseThrow(() -> new IllegalArgumentException("There aren't accounts"));
+                .orElseThrow(() -> new RestRuntimeException("Нет подходящего аккаунта", HttpStatus.NOT_FOUND));
     }
 
     private String getSandboxAccountId(BotConfig config) {
@@ -124,7 +126,7 @@ public class BotService {
                                 && account.getAccessLevel().equals(ACCOUNT_ACCESS_LEVEL_FULL_ACCESS))
                         .findFirst().map(Account::getId))
                 .or(() -> Optional.of(sdkService.getSandboxInvestApi().getSandboxService().openAccountSync()))
-                .orElseThrow(() -> new IllegalArgumentException("There aren't accounts"));
+                .orElseThrow(() -> new RestRuntimeException("Нет подходящего аккаунта", HttpStatus.NOT_FOUND));
     }
 
     private BotState getBotState(BotConfig config, String accountId, BotEnv env,
@@ -167,6 +169,7 @@ public class BotService {
                 .setProfitPercentage(statistic.getProfitPercentage())
                 .setCurrency(instrument.getCurrency())
                 .setTelegramBotChatId(state.getTelegramBotChatId())
+                .setIconUrl(instrument.getImage())
                 .setErrors(bot.getState().getErrors());
     }
 
