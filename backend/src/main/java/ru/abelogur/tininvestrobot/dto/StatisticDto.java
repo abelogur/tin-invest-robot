@@ -4,11 +4,12 @@ import lombok.Getter;
 import ru.abelogur.tininvestrobot.domain.Order;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.math.RoundingMode.HALF_UP;
 
 @Getter
 public class StatisticDto {
@@ -26,12 +27,33 @@ public class StatisticDto {
                 .collect(Collectors.toList());
         this.profit = profit;
         this.profitPercentage = usedMoney.equals(BigDecimal.ZERO) ? BigDecimal.ZERO
-                : profit.multiply(BigDecimal.valueOf(100)).divide(usedMoney, 2, RoundingMode.HALF_UP);
+                : profit.multiply(BigDecimal.valueOf(100)).divide(usedMoney, 2, HALF_UP);
         this.commission = commission;
         this.profitWithCommission = profit.subtract(commission);
         this.profitWithCommissionPercentage = usedMoney.add(commission).equals(BigDecimal.ZERO) ? BigDecimal.ZERO
-                : profitWithCommission.multiply(BigDecimal.valueOf(100)).divide(usedMoney.add(commission), 2, RoundingMode.HALF_UP);
+                : profitWithCommission.multiply(BigDecimal.valueOf(100)).divide(usedMoney.add(commission), 2, HALF_UP);
         this.usedMoney = usedMoney;
+    }
+
+    public StatisticDto multiply(BigDecimal multiplier) {
+        profit = profit.multiply(multiplier).setScale(2, HALF_UP);
+        commission = commission.multiply(multiplier).setScale(2, HALF_UP);
+        profitWithCommission = profitWithCommission.multiply(multiplier).setScale(2, HALF_UP);
+        usedMoney = usedMoney.multiply(multiplier).setScale(2, HALF_UP);
+        return this;
+    }
+
+    public StatisticDto sum(StatisticDto other) {
+        orders = Collections.emptyList();
+        profit = profit.add(other.getProfit());
+        commission = commission.add(other.getCommission());
+        profitWithCommission = profitWithCommission.add(other.getProfitWithCommission());
+        usedMoney = usedMoney.add(other.getUsedMoney());
+        profitPercentage = usedMoney.equals(BigDecimal.ZERO) ? BigDecimal.ZERO
+                : profit.multiply(BigDecimal.valueOf(100)).divide(usedMoney, 2, HALF_UP);
+        this.profitWithCommissionPercentage = usedMoney.add(commission).equals(BigDecimal.ZERO) ? BigDecimal.ZERO
+                : profitWithCommission.multiply(BigDecimal.valueOf(100)).divide(usedMoney.add(commission), 2, HALF_UP);
+        return this;
     }
 
     public static StatisticDto empty() {

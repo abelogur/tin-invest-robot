@@ -21,4 +21,9 @@ public class StatisticController {
     public StatisticDto getStatistic(@PathVariable UUID botUuid) {
         return statisticService.getStatistic(botUuid);
     }
+
+    @GetMapping("general")
+    public StatisticDto getGeneralStatistic() {
+        return statisticService.getGeneralStatistic();
+    }
 }
