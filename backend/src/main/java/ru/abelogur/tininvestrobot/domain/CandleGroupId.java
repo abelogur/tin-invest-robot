@@ -8,6 +8,10 @@ import ru.tinkoff.piapi.contract.v1.SubscriptionInterval;
 
 import java.time.Duration;
 
+/**
+ * Ключ для хранения исторических данных инструмента.
+ * Введен для удобства хранения.
+ */
 @Getter
 @EqualsAndHashCode
 public class CandleGroupId {

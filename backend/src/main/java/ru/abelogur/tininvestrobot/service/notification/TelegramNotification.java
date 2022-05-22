@@ -16,6 +16,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Отправка уведомлений в телеграм чат с ботом.
+ * Для работы телеграм бота требуется создать своего бота и задать в application.yaml параметр app.telegram.token
+ * напрямую или через переменную окружения TELEGRAM_BOT_TOKEN.
+ * При отправке телеграм боту команды /start, он вернет chatId.
+ * Далее необходимо при запросе на создание Инвест бота передать charId в переменную telegramBotChatId.
+ *
+ * К сожалению, getUpdate не может работать с несколькими инстансами одного и того же телеграм бота.
+ * По этому каждому клиенту Инвест бота необходимо создать своего телеграм бота,
+ * если нужна функция получения уведомлений в телеграме.
+ *
+ */
 @Component
 @ConditionalOnProperty(prefix = "app.telegram", name = "token")
 public class TelegramNotification implements OrderObserver {

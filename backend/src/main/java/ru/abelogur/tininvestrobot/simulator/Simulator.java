@@ -13,6 +13,9 @@ import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Симуляция получения данных на исторических значениях
+ */
 @Service
 @RequiredArgsConstructor
 public class Simulator {

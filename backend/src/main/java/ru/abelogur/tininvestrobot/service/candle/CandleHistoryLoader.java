@@ -20,6 +20,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+/**
+ * Загрузка исторических данных (свечей) по инструменту (figi).
+ * Загрузка данных осуществляется по паре figi+interval (CandleGroupId).
+ * В дальнейшем данные попадают в хранилище, откуда их также можно достать по паре figi+interval (CandleGroupId);
+ */
 @Component
 @RequiredArgsConstructor
 public class CandleHistoryLoader {

@@ -4,6 +4,9 @@ import ru.abelogur.tininvestrobot.indicator.CachedIndicator;
 
 import java.math.BigDecimal;
 
+/**
+ * Индикатор максимального значения в последних(candleCount) свечах
+ */
 public class HighestValueIndicator extends CachedIndicator<BigDecimal> {
 
     private final PriceIndicator indicator;

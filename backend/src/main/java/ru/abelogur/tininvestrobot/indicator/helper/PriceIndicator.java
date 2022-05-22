@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Базовый класс для индикатора цены
+ */
 public abstract class PriceIndicator extends CachedIndicator<BigDecimal> {
 
     private final Function<CachedCandle, BigDecimal> priceFunction;

@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Одноминутный скальпинг
+ *
+ * @see <a href="https://www.asktraders.com/gb/learn-to-trade/forex-trading/one-minute-scalping-strategy/">
+ *     https://www.asktraders.com/gb/learn-to-trade/forex-trading/one-minute-scalping-strategy/</a>
+ */
 public class OneMinuteScalpingStrategy implements InvestStrategy {
 
     public static final String EMA50 = "EMA50";

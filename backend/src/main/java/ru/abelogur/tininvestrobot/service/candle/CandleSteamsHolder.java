@@ -32,6 +32,11 @@ import static ru.abelogur.tininvestrobot.helper.HelperUtils.getStatusCodeToRecon
 import static ru.tinkoff.piapi.contract.v1.SubscriptionInterval.SUBSCRIPTION_INTERVAL_FIVE_MINUTES;
 import static ru.tinkoff.piapi.contract.v1.SubscriptionInterval.SUBSCRIPTION_INTERVAL_ONE_MINUTE;
 
+/**
+ * Инициализация и хранение подписок на свечи.
+ * Для получения обновлений свечей по интервалам 1 мин и 5 мин используются сервис api MarketDataSubscriptionService.
+ * Для остальных интервалов используются обновление через периодический пуллинг по расписанию ScheduledFuture
+ */
 @Slf4j
 @Component
 public class CandleSteamsHolder {

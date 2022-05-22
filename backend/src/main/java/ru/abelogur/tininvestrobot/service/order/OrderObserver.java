@@ -4,6 +4,9 @@ import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
+/**
+ * Уведомления о состоянии поручения
+ */
 public interface OrderObserver {
     default void notifyNewOrder(Order order) {}
 
