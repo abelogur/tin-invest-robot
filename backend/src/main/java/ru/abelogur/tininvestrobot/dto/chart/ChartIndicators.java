@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.dto;
+package ru.abelogur.tininvestrobot.dto.chart;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

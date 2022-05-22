@@ -2,9 +2,9 @@ package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.abelogur.tininvestrobot.dto.Chart;
-import ru.abelogur.tininvestrobot.dto.ChartIndicators;
-import ru.abelogur.tininvestrobot.dto.ChartPoint;
+import ru.abelogur.tininvestrobot.dto.chart.Chart;
+import ru.abelogur.tininvestrobot.dto.chart.ChartIndicators;
+import ru.abelogur.tininvestrobot.dto.chart.ChartPoint;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 
 import javax.annotation.Nullable;

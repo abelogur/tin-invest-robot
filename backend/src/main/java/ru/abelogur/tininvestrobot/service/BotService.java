@@ -8,14 +8,12 @@ import ru.abelogur.tininvestrobot.dto.BotConfig;
 import ru.abelogur.tininvestrobot.dto.BotEnv;
 import ru.abelogur.tininvestrobot.dto.BotPreview;
 import ru.abelogur.tininvestrobot.dto.StatisticDto;
-import ru.abelogur.tininvestrobot.helper.CandleSteamsHolder;
-import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
-import ru.abelogur.tininvestrobot.service.order.OrderService;
-import ru.abelogur.tininvestrobot.service.order.RealOrderService;
-import ru.abelogur.tininvestrobot.service.order.SandboxOrderService;
-import ru.abelogur.tininvestrobot.service.order.SimulateOrderService;
+import ru.abelogur.tininvestrobot.service.candle.CandleService;
+import ru.abelogur.tininvestrobot.service.candle.CandleSteamsHolder;
+import ru.abelogur.tininvestrobot.service.notification.TelegramNotification;
+import ru.abelogur.tininvestrobot.service.order.*;
 import ru.abelogur.tininvestrobot.simulator.Simulator;
 import ru.tinkoff.piapi.contract.v1.Account;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
@@ -158,7 +156,7 @@ public class BotService {
         CachedInstrument instrument = instrumentRepository.get(state.getFigi());
         StatisticDto statistic = statisticService.getStatistic(bot.getState().getUuid());
         return new BotPreview()
-                .setId(state.getUuid())
+                .setUuid(state.getUuid())
                 .setStart(bot.getState().getInitTime())
                 .setStrategyCode(bot.getInvestStrategy().getCode())
                 .setBotEnv(state.getBotEnv())

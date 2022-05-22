@@ -6,8 +6,8 @@ import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
-import ru.abelogur.tininvestrobot.service.CandleService;
 import ru.abelogur.tininvestrobot.service.SdkService;
+import ru.abelogur.tininvestrobot.service.candle.CandleService;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 
 import java.time.Instant;

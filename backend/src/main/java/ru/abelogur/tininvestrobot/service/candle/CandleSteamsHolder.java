@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.helper;
+package ru.abelogur.tininvestrobot.service.candle;
 
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.domain.CachedInstrument;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
+import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
-import ru.abelogur.tininvestrobot.service.CandleService;
 import ru.abelogur.tininvestrobot.service.SdkService;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.MarketDataResponse;

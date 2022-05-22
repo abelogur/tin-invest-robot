@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.service;
+package ru.abelogur.tininvestrobot.service.order;
 
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;

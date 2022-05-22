@@ -1,10 +1,10 @@
-package ru.abelogur.tininvestrobot.helper;
+package ru.abelogur.tininvestrobot.service.notification;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
+import ru.abelogur.tininvestrobot.service.order.OrderObserver;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 @Slf4j

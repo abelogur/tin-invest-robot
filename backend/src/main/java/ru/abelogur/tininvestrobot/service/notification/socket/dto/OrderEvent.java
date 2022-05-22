@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.socket.dto;
+package ru.abelogur.tininvestrobot.service.notification.socket.dto;
 
 import lombok.Getter;
 import lombok.Setter;

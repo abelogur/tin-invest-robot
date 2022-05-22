@@ -16,7 +16,7 @@ import java.util.UUID;
 @Setter
 @Accessors(chain = true)
 public class BotPreview {
-    private UUID id;
+    private UUID uuid;
     private Instant start;
     private StrategyCode strategyCode;
     private BotEnv botEnv;

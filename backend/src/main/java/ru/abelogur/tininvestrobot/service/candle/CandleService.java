@@ -1,11 +1,10 @@
-package ru.abelogur.tininvestrobot.service;
+package ru.abelogur.tininvestrobot.service.candle;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.CachedCandle;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.domain.CandleObserver;
-import ru.abelogur.tininvestrobot.helper.CandleHistoryLoader;
 import ru.abelogur.tininvestrobot.repository.CandleRepository;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;

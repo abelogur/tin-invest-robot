@@ -3,8 +3,8 @@ package ru.abelogur.tininvestrobot.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.abelogur.tininvestrobot.dto.Chart;
-import ru.abelogur.tininvestrobot.dto.ChartIndicators;
+import ru.abelogur.tininvestrobot.dto.chart.Chart;
+import ru.abelogur.tininvestrobot.dto.chart.ChartIndicators;
 import ru.abelogur.tininvestrobot.service.IndicatorService;
 
 import java.time.Instant;

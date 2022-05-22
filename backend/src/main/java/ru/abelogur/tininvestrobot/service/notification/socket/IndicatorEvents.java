@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.socket;
+package ru.abelogur.tininvestrobot.service.notification.socket;
 
 import lombok.Getter;
 

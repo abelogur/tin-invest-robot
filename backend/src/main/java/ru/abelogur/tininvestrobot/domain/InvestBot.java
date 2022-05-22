@@ -2,7 +2,7 @@ package ru.abelogur.tininvestrobot.domain;
 
 import lombok.Getter;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
+import ru.abelogur.tininvestrobot.service.order.OrderObserver;
 import ru.abelogur.tininvestrobot.service.order.OrderService;
 import ru.abelogur.tininvestrobot.strategy.InvestStrategy;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;

@@ -6,7 +6,6 @@ import ru.abelogur.tininvestrobot.domain.OrderAction;
 import ru.abelogur.tininvestrobot.domain.OrderStatus;
 import ru.abelogur.tininvestrobot.domain.TradeType;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.tinkoff.piapi.contract.v1.PostOrderResponse;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;

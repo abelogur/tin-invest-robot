@@ -1,9 +1,8 @@
-package ru.abelogur.tininvestrobot.helper;
+package ru.abelogur.tininvestrobot.service.order;
 
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 import java.util.HashMap;

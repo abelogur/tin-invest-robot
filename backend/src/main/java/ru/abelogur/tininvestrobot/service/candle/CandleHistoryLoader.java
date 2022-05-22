@@ -1,9 +1,10 @@
-package ru.abelogur.tininvestrobot.helper;
+package ru.abelogur.tininvestrobot.service.candle;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.dto.LoadPeriod;
+import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.abelogur.tininvestrobot.service.SdkService;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;

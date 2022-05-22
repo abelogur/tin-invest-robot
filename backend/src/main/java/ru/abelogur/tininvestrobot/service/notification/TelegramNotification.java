@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.service;
+package ru.abelogur.tininvestrobot.service.notification;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
+import ru.abelogur.tininvestrobot.service.order.OrderObserver;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 import java.util.HashMap;

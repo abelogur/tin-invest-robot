@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.domain.OrderStatus;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.abelogur.tininvestrobot.repository.OrderHistoryRepository;
 import ru.abelogur.tininvestrobot.service.SdkService;

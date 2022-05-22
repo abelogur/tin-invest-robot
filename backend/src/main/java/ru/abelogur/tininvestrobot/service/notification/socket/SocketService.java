@@ -1,4 +1,4 @@
-package ru.abelogur.tininvestrobot.socket;
+package ru.abelogur.tininvestrobot.service.notification.socket;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -7,18 +7,16 @@ import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.*;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
-import ru.abelogur.tininvestrobot.service.CandleService;
 import ru.abelogur.tininvestrobot.service.IndicatorService;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
-import ru.abelogur.tininvestrobot.socket.dto.OrderErrorEvent;
-import ru.abelogur.tininvestrobot.socket.dto.OrderEvent;
+import ru.abelogur.tininvestrobot.service.candle.CandleService;
+import ru.abelogur.tininvestrobot.service.notification.socket.dto.OrderErrorEvent;
+import ru.abelogur.tininvestrobot.service.notification.socket.dto.OrderEvent;
+import ru.abelogur.tininvestrobot.service.order.OrderObserver;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 import java.util.*;
 
-import static ru.abelogur.tininvestrobot.socket.IndicatorEvents.INDICATORS;
-import static ru.abelogur.tininvestrobot.socket.IndicatorEvents.INDICATORS_SUBSCRIBE;
-import static ru.abelogur.tininvestrobot.socket.SocketOrderEvents.*;
+import static ru.abelogur.tininvestrobot.service.notification.socket.SocketOrderEvents.*;
 
 @Slf4j
 @Service
@@ -73,11 +71,11 @@ public class SocketService implements OrderObserver, CandleObserver {
     public void notifyCandle(CandleGroupId groupId, CachedCandle candle) {
         investBots.getOrDefault(groupId, Collections.emptyList())
                 .forEach(bot -> socketIOServer.getRoomOperations(bot.getState().getUuid().toString())
-                        .sendEvent(INDICATORS.getTopic(), indicatorService.getLastIndicators(bot.getState().getUuid())));
+                        .sendEvent(IndicatorEvents.INDICATORS.getTopic(), indicatorService.getLastIndicators(bot.getState().getUuid())));
     }
 
     private void addIndicatorsSubscribeListener(CandleService candleService) {
-        this.socketIOServer.addEventListener(INDICATORS_SUBSCRIBE.getTopic(), UUID.class,
+        this.socketIOServer.addEventListener(IndicatorEvents.INDICATORS_SUBSCRIBE.getTopic(), UUID.class,
                 (client, botUuid, ackSender) -> investBotRepository.get(botUuid)
                         .ifPresent(bot -> {
                             var groupId = bot.getState().getGroupId();
