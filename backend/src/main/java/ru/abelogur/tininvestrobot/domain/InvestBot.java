@@ -32,7 +32,11 @@ public class InvestBot implements CandleObserver, OrderObserver {
     }
 
     @Override
-    public void notifyCandle(CachedCandle candle) {
+    public void notifyCandle(CandleGroupId groupId, CachedCandle candle) {
+        if (!groupId.equals(state.getGroupId())) {
+            return;
+        }
+
         candles.add(candle);
         investStrategy.setLastIndex(candles.size() - 1);
 

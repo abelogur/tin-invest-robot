@@ -67,7 +67,7 @@ public class OneMinuteScalpingStrategy implements InvestStrategy {
         result.put(EMA50, new ArrayList<>());
         result.put(EMA100, new ArrayList<>());
         result.put(STOCHASTIC, new ArrayList<>());
-        for (int i = 0; i <= finish; i++) {
+        for (int i = start; i <= finish; i++) {
             result.get(EMA50).add(ema50Indicator.getValue(i));
             result.get(EMA100).add(ema100Indicator.getValue(i));
             result.get(STOCHASTIC).add(stochastic.getValue(i));

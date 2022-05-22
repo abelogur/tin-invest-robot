@@ -3,12 +3,11 @@ package ru.abelogur.tininvestrobot.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
 @AllArgsConstructor
-public class Chart {
-    private List<ChartPoint> points;
-    private Map<String, List<ChartPoint>> indicators;
+public class ChartIndicators {
+    private ChartPoint point;
+    private Map<String, ChartPoint> indicators;
 }

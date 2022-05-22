@@ -79,7 +79,7 @@ public class CandleService {
 
     private void notifyObservers(CandleGroupId groupId, CachedCandle candle) {
         if (candleObservers.containsKey(groupId)) {
-            candleObservers.get(groupId).forEach(observer -> observer.notifyCandle(candle));
+            candleObservers.get(groupId).forEach(observer -> observer.notifyCandle(groupId, candle));
         }
     }
 

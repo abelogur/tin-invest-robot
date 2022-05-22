@@ -160,7 +160,7 @@ public class BotService {
         return new BotPreview()
                 .setId(state.getUuid())
                 .setStart(bot.getState().getInitTime())
-                .setStrategy(bot.getInvestStrategy().getCode().getName())
+                .setStrategyCode(bot.getInvestStrategy().getCode())
                 .setBotEnv(state.getBotEnv())
                 .setInstrument(instrument.getName())
                 .setInstrumentTicket(instrument.getTicker())

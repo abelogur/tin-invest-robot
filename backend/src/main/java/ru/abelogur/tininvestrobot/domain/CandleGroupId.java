@@ -40,4 +40,9 @@ public class CandleGroupId {
         }
         return new CandleGroupId(figi, interval);
     }
+
+    @Override
+    public String toString() {
+        return this.figi + this.interval;
+    }
 }

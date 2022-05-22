@@ -3,6 +3,7 @@ package ru.abelogur.tininvestrobot.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.dto.Chart;
+import ru.abelogur.tininvestrobot.dto.ChartIndicators;
 import ru.abelogur.tininvestrobot.dto.ChartPoint;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 
@@ -36,7 +37,7 @@ public class IndicatorService {
             } else if (finish != null && finishIndex == -1 && candles.get(i).getTime().isAfter(finish)) {
                 finishIndex = i - 1;
             }
-            if (startIndex != -1 && finishIndex != - 1) {
+            if (startIndex != -1 && finishIndex != -1) {
                 break;
             }
         }
@@ -58,5 +59,26 @@ public class IndicatorService {
         }
 
         return Optional.of(new Chart(candlesOut, result));
+    }
+
+    public ChartIndicators getLastIndicators(UUID botUuid) {
+        var bot = investBotRepository.get(botUuid).orElse(null);
+        if (bot == null) {
+            return null;
+        }
+        var candles = bot.getCandles();
+        var lastIndex = candles.size() - 1;
+        var lastCandle = candles.get(lastIndex);
+        var indicators = bot.getInvestStrategy().getValues(lastIndex, lastIndex);
+
+
+        Map<String, ChartPoint> result = new HashMap<>();
+
+        indicators.forEach(
+                (indicator, values) -> result.put(indicator,
+                        new ChartPoint(values.get(values.size() - 1), lastCandle.getTime()))
+        );
+
+        return new ChartIndicators(new ChartPoint(lastCandle.getClosePrice(), lastCandle.getTime()), result);
     }
 }

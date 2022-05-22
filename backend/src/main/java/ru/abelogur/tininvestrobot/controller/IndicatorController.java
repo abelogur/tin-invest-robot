@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.abelogur.tininvestrobot.dto.Chart;
+import ru.abelogur.tininvestrobot.dto.ChartIndicators;
 import ru.abelogur.tininvestrobot.service.IndicatorService;
 
 import java.time.Instant;
@@ -23,5 +24,10 @@ public class IndicatorController {
         return indicatorService.getIndicators(botUuid, start, finish)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("bot/{botUuid}/last")
+    public ChartIndicators getLastIndicators(@PathVariable UUID botUuid) {
+        return indicatorService.getLastIndicators(botUuid);
     }
 }

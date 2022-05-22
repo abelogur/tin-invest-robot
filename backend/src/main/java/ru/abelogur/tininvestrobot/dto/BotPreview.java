@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import ru.abelogur.tininvestrobot.domain.OrderError;
+import ru.abelogur.tininvestrobot.strategy.StrategyCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class BotPreview {
     private UUID id;
     private Instant start;
-    private String strategy;
+    private StrategyCode strategyCode;
     private BotEnv botEnv;
     private String instrument;
     private String instrumentTicket;

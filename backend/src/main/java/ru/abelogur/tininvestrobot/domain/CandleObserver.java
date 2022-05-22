@@ -1,5 +1,5 @@
 package ru.abelogur.tininvestrobot.domain;
 
 public interface CandleObserver {
-    void notifyCandle(CachedCandle candle);
+    void notifyCandle(CandleGroupId groupId, CachedCandle candle);
 }
