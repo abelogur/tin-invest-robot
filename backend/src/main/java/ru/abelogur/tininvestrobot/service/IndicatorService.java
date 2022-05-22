@@ -9,8 +9,9 @@ import ru.abelogur.tininvestrobot.dto.chart.ChartIndicators;
 import ru.abelogur.tininvestrobot.dto.chart.ChartPoint;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 
-import javax.annotation.Nullable;
-import java.time.Instant;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,10 +21,7 @@ public class IndicatorService {
 
     private final InvestBotRepository investBotRepository;
 
-    public Optional<Chart> getIndicators(UUID botUuid, Instant start, @Nullable Instant finish) {
-        if (finish != null && start.isAfter(finish)) {
-            throw new RestRuntimeException("Дата начала должна быть раньше даты конца", HttpStatus.BAD_REQUEST);
-        }
+    public Optional<Chart> getIndicators(UUID botUuid, Integer offset, Integer periodDays) {
         var bot = investBotRepository.get(botUuid)
                 .orElseThrow(() -> new RestRuntimeException("Бот не найдет", HttpStatus.NOT_FOUND));
         var candles = bot.getCandles();
@@ -31,12 +29,19 @@ public class IndicatorService {
             return Optional.empty();
         }
 
+        var start = candles.stream()
+                .map(candle -> LocalDate.from(candle.getTime().atOffset(ZoneOffset.UTC)))
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList()).get(offset * periodDays).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var finish = start.plus(Duration.ofDays(periodDays));
+
         var startIndex = -1;
-        var finishIndex = finish == null ? candles.size() - 1 : -1;
+        var finishIndex = finish.isAfter(candles.get(candles.size() - 1).getTime()) ? candles.size() - 1 : -1;
         for (int i = 0; i < candles.size(); i++) {
             if (startIndex == -1 && !candles.get(i).getTime().isBefore(start)) {
                 startIndex = i;
-            } else if (finish != null && finishIndex == -1 && candles.get(i).getTime().isAfter(finish)) {
+            } else if (finishIndex == -1 && candles.get(i).getTime().isAfter(finish)) {
                 finishIndex = i - 1;
             }
             if (startIndex != -1 && finishIndex != -1) {

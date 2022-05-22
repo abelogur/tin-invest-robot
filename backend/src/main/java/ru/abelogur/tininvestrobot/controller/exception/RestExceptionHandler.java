@@ -20,6 +20,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<?> handleException(Exception e) {
+        log.error(e.getMessage(), e);
         return new ResponseEntity<>(
                 new RestRuntimeExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR

@@ -1,6 +1,7 @@
 package ru.abelogur.tininvestrobot.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,6 @@ import ru.abelogur.tininvestrobot.dto.chart.Chart;
 import ru.abelogur.tininvestrobot.dto.chart.ChartIndicators;
 import ru.abelogur.tininvestrobot.service.IndicatorService;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Tag(name = "Индикатор")
@@ -23,9 +23,11 @@ public class IndicatorController {
     @Operation(summary = "Исторических данные цены инструмента и значений его индикаторов")
     @GetMapping("bot/{botUuid}")
     public ResponseEntity<Chart> getIndicators(@PathVariable UUID botUuid,
-                                               @RequestParam Instant start,
-                                               @RequestParam(required = false) Instant finish) {
-        return indicatorService.getIndicators(botUuid, start, finish)
+                                               @Parameter(description = "Кол-во смещений на размер периода")
+                                               @RequestParam(required = false, defaultValue = "0") Integer offset,
+                                               @Parameter(description = "Размер периода, за который берутся данные в днях")
+                                               @RequestParam(required = false, defaultValue = "1") Integer periodDays) {
+        return indicatorService.getIndicators(botUuid, offset, periodDays)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
