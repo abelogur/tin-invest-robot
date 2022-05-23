@@ -1,8 +1,11 @@
-export interface Statistics {
-  points: Point[];
-}
+import {Order} from "./order";
 
-interface Point {
-  value: number;
-  time: string;
+export interface Statistics {
+  orders: Order[],
+  profit: number,
+  profitPercentage: number,
+  commission: number,
+  profitWithCommission: number,
+  profitWithCommissionPercentage: number,
+  usedMoney: number
 }

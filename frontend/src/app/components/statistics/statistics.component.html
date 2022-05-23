@@ -1,1 +1,26 @@
 <canvas id="myChart" height="50px"></canvas>
+<canvas id="stochasticChart" height="50px"></canvas>
+
+<div class="d-flex">
+  <div>
+    <h2 class="headline1 headline_color text-black ml-2">Статистика</h2>
+    <div class="d-flex m-2">
+      <div *ngIf="statistic">
+        <p>Доход: {{statistic.profit}} ({{statistic.profitPercentage}}%)</p>
+        <p>Комиссия: {{statistic.commission}}</p>
+        <p>Доход с учетом комиссии: {{statistic.profitWithCommission}} ({{statistic.profitPercentage}}%)</p>
+        <p>Использовано ресурсов: {{statistic.usedMoney}}</p>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="headline1 headline_color text-black ml-2">История сделок</h2>
+    <div *ngFor="let order of statistic?.orders" class="d-flex m-2">
+      <div  >
+        <p>{{order.action}} {{order.type}}. Цена: {{order.price}}. Время: {{order.time}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+

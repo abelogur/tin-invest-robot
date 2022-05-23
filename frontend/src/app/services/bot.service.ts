@@ -3,6 +3,7 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Bot} from "../interfaces/bot";
 import {environment} from 'src/environments/environment';
+import {BotChart} from "../interfaces/botChart";
 import {Statistics} from "../interfaces/statistics";
 
 @Injectable({
@@ -19,12 +20,16 @@ export class BotService {
     return this.http.get<Bot[]>(`${this.BASE_URL}/bot`)
   }
 
-  getStatistics(botUuid: string, offset: number): Observable<Statistics> {
+  getBotChart(botUuid: string, offset: number): Observable<BotChart> {
     let params = new HttpParams();
 
     // Begin assigning parameters
 
     params = params.append('offset', offset + '');
-    return this.http.get<Statistics>(`${this.BASE_URL}/indicator/bot/${botUuid}`, {params})
+    return this.http.get<BotChart>(`${this.BASE_URL}/indicator/bot/${botUuid}`, {params})
+  }
+
+  getStatistic(botUuid: string): Observable<Statistics> {
+    return this.http.get<Statistics>(`${this.BASE_URL}/statistic/bot/${botUuid}`)
   }
 }

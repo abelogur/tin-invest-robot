@@ -17,6 +17,7 @@ import ru.tinkoff.piapi.core.utils.MapperUtils;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +67,9 @@ public class StatisticService {
         var lastPrice = getLastPrice(settings.getFigi());
         profit = profit.add(lastPrice.multiply(BigDecimal.valueOf(longs)));
         profit = profit.subtract(lastPrice.multiply(BigDecimal.valueOf(shorts)));
-        return new StatisticDto(orders, profit, commission, usedMoney);
+        return new StatisticDto(orders.stream()
+                .sorted(((o1, o2) -> o2.getTime().compareTo(o1.getTime())))
+                .collect(Collectors.toList()), profit, commission, usedMoney);
     }
 
     public StatisticDto getGeneralStatistic() {
