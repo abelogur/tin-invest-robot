@@ -13,7 +13,7 @@ app.telegram.token(переменная окружения TELEGRAM_BOT_TOKEN): 
 
 ## Запуск
 ```shell
-cd backend
+cd backend/
 mvn clean install
 java -jar ./target/tin-invest-robot-0.0.1-SNAPSHOT.jar
 ```
@@ -69,6 +69,15 @@ http://localhost:8090/api/swagger-ui/index.html. Для того, чтобы н�
 Для того чтобы создать новую стратегию, необходимо реализовать интерфейс `InvestStrategy` и добавить 
 код в `StrategyCode`.
 
+## Открытие интерфейса (визуализация)
+Необходим Node.js версии не ниже v16.10
+```shell
+cd frontend/
+npm install
+npm run start
+```
+Интерфейс будет доступен по адресу http://localhost:4200/
+
 ## Дополнительный функционал
-* Уведомления через Telogram Bot `TelegramNotification`
+* Уведомления через Telegram Bot `TelegramNotification`
 * Получение данных через Web Socket `SocketService`
