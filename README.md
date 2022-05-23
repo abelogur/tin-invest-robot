@@ -6,13 +6,17 @@ x-app-name abelogur
 * Maven версии не ниже 3.8.1
 
 ## Конфигурация
-> app.config.token(переменная окружения INVEST_API_TOKEN): токен для API Тинькофф Инвестиций
-> app.telegram.token(переменная окружения TELEGRAM_BOT_TOKEN): токен телеграм бота (опционально)
+```properties
+app.config.token(переменная окружения INVEST_API_TOKEN): токен для API Тинькофф Инвестиций
+app.telegram.token(переменная окружения TELEGRAM_BOT_TOKEN): токен телеграм бота (опционально)
+```
 
 ## Запуск
-> cd backend
-> mvn clean install
-> java -jar ./target/tin-invest-robot-0.0.1-SNAPSHOT.jar
+```shell
+cd backend
+mvn clean install
+java -jar ./target/tin-invest-robot-0.0.1-SNAPSHOT.jar
+```
 
 ## Общие описание работы сервиса
 Вся работа с сервисом осуществляется через REST API. Swagger документация будет доступна тут 
@@ -44,7 +48,7 @@ http://localhost:8090/api/swagger-ui/index.html. Для того, чтобы н�
 * цена должна вернутся к 100 EMA
 * Стохастичность ниже 20 
 
-(https://www.asktraders.com/wp-content/uploads/2020/06/1-min-scalping-strategy-01.png)
+![alt text](https://www.asktraders.com/wp-content/uploads/2020/06/1-min-scalping-strategy-01.png)
 
 Критерии для открытия short: 
 * 50 EMA ниже чем 100 EMA
