@@ -3,6 +3,7 @@ package ru.abelogur.tininvestrobot.service.notification.socket;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.abelogur.tininvestrobot.domain.*;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
@@ -28,14 +29,15 @@ public class SocketService implements OrderObserver, CandleObserver {
     private final InvestBotRepository investBotRepository;
     private final IndicatorService indicatorService;
 
-    public SocketService(CandleService candleService, InvestBotRepository investBotRepository,
+    public SocketService(@Value("${socket.port}") Integer port,
+                         CandleService candleService, InvestBotRepository investBotRepository,
                          IndicatorService indicatorService) {
         this.investBotRepository = investBotRepository;
         this.indicatorService = indicatorService;
 
         Configuration config = new Configuration();
         config.setHostname("localhost");
-        config.setPort(9092);
+        config.setPort(port);
 
         this.socketIOServer = new SocketIOServer(config);
         this.socketIOServer.start();

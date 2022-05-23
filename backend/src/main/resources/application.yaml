@@ -10,6 +10,9 @@ server:
   servlet:
     context-path: /api
 
+socket:
+  port: 9092
+
 management:
   endpoints:
     web:
