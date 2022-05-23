@@ -6,7 +6,6 @@ import ru.abelogur.tininvestrobot.domain.OrderAction;
 import ru.abelogur.tininvestrobot.domain.OrderStatus;
 import ru.abelogur.tininvestrobot.domain.TradeType;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.tinkoff.piapi.contract.v1.PostOrderResponse;
 import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
@@ -29,6 +28,7 @@ public abstract class IntegrationOrderService implements OrderService {
                     orderInfo.getBotUuid(),
                     TradeType.LONG,
                     MapperUtils.moneyValueToBigDecimal(response.getTotalOrderAmount()),
+                    orderInfo.getNumberOfLots(),
                     BigDecimal.ZERO,
                     orderInfo.getTime(),
                     orderInfo.getReason(),
@@ -39,6 +39,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }
@@ -51,6 +52,7 @@ public abstract class IntegrationOrderService implements OrderService {
                     orderInfo.getBotUuid(),
                     TradeType.LONG,
                     MapperUtils.moneyValueToBigDecimal(response.getTotalOrderAmount()),
+                    orderInfo.getNumberOfLots(),
                     BigDecimal.ZERO,
                     orderInfo.getTime(),
                     orderInfo.getReason(),
@@ -61,6 +63,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }
@@ -73,6 +76,7 @@ public abstract class IntegrationOrderService implements OrderService {
                     orderInfo.getBotUuid(),
                     TradeType.SHORT,
                     MapperUtils.moneyValueToBigDecimal(response.getTotalOrderAmount()),
+                    orderInfo.getNumberOfLots(),
                     BigDecimal.ZERO,
                     orderInfo.getTime(),
                     orderInfo.getReason(),
@@ -83,6 +87,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }
@@ -95,6 +100,7 @@ public abstract class IntegrationOrderService implements OrderService {
                     orderInfo.getBotUuid(),
                     TradeType.SHORT,
                     MapperUtils.moneyValueToBigDecimal(response.getTotalOrderAmount()),
+                    orderInfo.getNumberOfLots(),
                     BigDecimal.ZERO,
                     orderInfo.getTime(),
                     orderInfo.getReason(),
@@ -105,6 +111,7 @@ public abstract class IntegrationOrderService implements OrderService {
             observersHolder.notifyNewOrderObservers(order);
             return Optional.of(order);
         } catch (ApiRuntimeException e) {
+            observersHolder.notifyErrorObservers(orderInfo, e);
             return Optional.empty();
         }
     }

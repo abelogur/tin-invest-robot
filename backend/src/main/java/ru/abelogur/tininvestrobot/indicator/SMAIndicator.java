@@ -3,6 +3,12 @@ package ru.abelogur.tininvestrobot.indicator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+
+/**
+ * Индикатор простое скользящее среднее (SMA).
+ *
+ * @see <a href="https://www.investopedia.com/terms/s/sma.asp">https://www.investopedia.com/terms/s/sma.asp</a>
+ */
 public class SMAIndicator extends CachedIndicator<BigDecimal> {
 
     private final Indicator<BigDecimal> indicator;

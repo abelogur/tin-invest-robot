@@ -1,22 +1,21 @@
 package ru.abelogur.tininvestrobot.domain;
 
 import lombok.Getter;
-import ru.abelogur.tininvestrobot.dto.BotSettings;
 import ru.abelogur.tininvestrobot.dto.CreateOrderInfo;
-import ru.abelogur.tininvestrobot.helper.HelperUtils;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
+import ru.abelogur.tininvestrobot.service.order.OrderObserver;
 import ru.abelogur.tininvestrobot.service.order.OrderService;
 import ru.abelogur.tininvestrobot.strategy.InvestStrategy;
+import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 public class InvestBot implements CandleObserver, OrderObserver {
 
     @Getter
-    private final CandleGroupId groupId;
+    private final BotState state;
     @Getter
-    private final BotSettings settings;
     private final List<CachedCandle> candles;
     @Getter
     private final InvestStrategy investStrategy;
@@ -24,29 +23,31 @@ public class InvestBot implements CandleObserver, OrderObserver {
 
     private Order order;
 
-    public InvestBot(BotSettings settings, List<CachedCandle> candles,
+    public InvestBot(BotState state, List<CachedCandle> candles,
                      InvestStrategy investStrategy, OrderService orderService) {
-        var figi = settings.getFigi();
-        var interval = HelperUtils.intervalFrom(investStrategy.getCode().getInterval());
-        this.groupId = CandleGroupId.of(figi, interval);
-
-        this.settings = settings;
+        this.state = state;
         this.candles = candles;
         this.investStrategy = investStrategy;
         this.orderService = orderService;
     }
 
     @Override
-    public void notifyCandle(CachedCandle candle) {
+    public void notifyCandle(CandleGroupId groupId, CachedCandle candle) {
+        if (!groupId.equals(state.getGroupId())) {
+            return;
+        }
+
         candles.add(candle);
         investStrategy.setLastIndex(candles.size() - 1);
 
         cancelOrderIfNeed();
 
         checkForOpenLong();
-        checkForOpenShort();
         checkForCloseLong();
-        checkForCloseShort();
+        if (state.isMarginAvailable()) {
+            checkForOpenShort();
+            checkForCloseShort();
+        }
     }
 
     private void checkForOpenLong() {
@@ -72,8 +73,8 @@ public class InvestBot implements CandleObserver, OrderObserver {
             return;
         }
         var lastClosePrice = getLastCandle().getClosePrice();
-        var takeProfitMultiplier = settings.getTakeProfit().add(BigDecimal.ONE);
-        var stopLossMultiplier = BigDecimal.ONE.subtract(settings.getStopLoss());
+        var takeProfitMultiplier = state.getTakeProfit().add(BigDecimal.ONE);
+        var stopLossMultiplier = BigDecimal.ONE.subtract(state.getStopLoss());
         if (order.getPrice().multiply(takeProfitMultiplier).compareTo(lastClosePrice) <= 0) {
             orderService.closeLong(formOrderInfo(getLastCandle(), OrderReason.TAKE_PROFIT));
             order = null;
@@ -88,8 +89,8 @@ public class InvestBot implements CandleObserver, OrderObserver {
             return;
         }
         var lastClosePrice = getLastCandle().getClosePrice();
-        var takeProfitMultiplier = BigDecimal.ONE.subtract(settings.getTakeProfit());
-        var stopLossMultiplier = settings.getStopLoss().add(BigDecimal.ONE);
+        var takeProfitMultiplier = BigDecimal.ONE.subtract(state.getTakeProfit());
+        var stopLossMultiplier = state.getStopLoss().add(BigDecimal.ONE);
         if (order.getPrice().multiply(takeProfitMultiplier).compareTo(lastClosePrice) >= 0) {
             orderService.closeShort(formOrderInfo(getLastCandle(), OrderReason.TAKE_PROFIT));
             order = null;
@@ -97,10 +98,6 @@ public class InvestBot implements CandleObserver, OrderObserver {
             orderService.closeShort(formOrderInfo(getLastCandle(), OrderReason.STOP_LOSS));
             order = null;
         }
-    }
-
-    @Override
-    public void notifyNewOrder(Order order) {
     }
 
     @Override
@@ -117,18 +114,24 @@ public class InvestBot implements CandleObserver, OrderObserver {
         }
     }
 
+    @Override
+    public void notifyError(CreateOrderInfo info, ApiRuntimeException e) {
+        var error = new OrderError(info.getReason(), e.getMessage(), e.getCode(), Instant.now());
+        this.getState().getErrors().add(error);
+    }
+
     private CachedCandle getLastCandle() {
         return candles.get(candles.size() - 1);
     }
 
     private CreateOrderInfo formOrderInfo(CachedCandle candle, OrderReason reason) {
-        return new CreateOrderInfo(settings.getUuid(), settings.getFigi(), reason, candle.getClosePrice(),
-                candle.getTime(), settings.getAccountId(), settings.getNumberOfLots());
+        return new CreateOrderInfo(state.getUuid(), state.getFigi(), reason, candle.getClosePrice(),
+                candle.getTime(), state.getAccountId(), state.getNumberOfLots());
     }
 
     private void cancelOrderIfNeed() {
         if (order != null && order.isNew()) {
-            orderService.cancelOrder(settings.getAccountId(), order.getId());
+            orderService.cancelOrder(state.getAccountId(), order.getId());
             order = null;
         }
     }

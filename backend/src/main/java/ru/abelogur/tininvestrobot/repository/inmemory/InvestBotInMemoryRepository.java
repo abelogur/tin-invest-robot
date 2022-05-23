@@ -25,7 +25,7 @@ public class InvestBotInMemoryRepository implements InvestBotRepository {
 
     @Override
     public void save(InvestBot bot) {
-        bots.put(bot.getSettings().getUuid(), bot);
+        bots.put(bot.getState().getUuid(), bot);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class InvestBotInMemoryRepository implements InvestBotRepository {
     @Override
     public List<InvestBot> getByGroupId(CandleGroupId groupId) {
         return bots.values().stream()
-                .filter(bot -> bot.getGroupId().equals(groupId))
+                .filter(bot -> bot.getState().getGroupId().equals(groupId))
                 .collect(Collectors.toList());
     }
 }

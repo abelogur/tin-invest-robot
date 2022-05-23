@@ -2,9 +2,16 @@ app:
   name: Invest Bot
   config:
     token: ${INVEST_API_TOKEN:}
+  telegram:
+    token: ${TELEGRAM_BOT_TOKEN:false}
 
 server:
   port: 8090
+  servlet:
+    context-path: /api
+
+socket:
+  port: 9092
 
 management:
   endpoints:

@@ -1,9 +1,12 @@
-package ru.abelogur.tininvestrobot.helper;
+package ru.abelogur.tininvestrobot.service.candle;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
 import ru.abelogur.tininvestrobot.domain.CandleGroupId;
 import ru.abelogur.tininvestrobot.dto.LoadPeriod;
+import ru.abelogur.tininvestrobot.helper.HelperUtils;
 import ru.abelogur.tininvestrobot.service.SdkService;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
@@ -17,6 +20,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+/**
+ * Загрузка исторических данных (свечей) по инструменту (figi).
+ * Загрузка данных осуществляется по паре figi+interval (CandleGroupId).
+ * В дальнейшем данные попадают в хранилище, откуда их также можно достать по паре figi+interval (CandleGroupId);
+ */
 @Component
 @RequiredArgsConstructor
 public class CandleHistoryLoader {
@@ -67,7 +75,7 @@ public class CandleHistoryLoader {
             case CANDLE_INTERVAL_DAY:
                 return finish.minus(365 * 3, ChronoUnit.DAYS);
             default:
-                throw new IllegalArgumentException("Invalid candle interval");
+                throw new RestRuntimeException("Invalid candle interval", HttpStatus.BAD_REQUEST);
         }
     }
 

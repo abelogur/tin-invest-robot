@@ -7,6 +7,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+/**
+ * Индикатор Стохастик
+ *
+ *  @see <a href="https://www.investopedia.com/terms/s/stochasticoscillator.asp">
+ *      https://www.investopedia.com/terms/s/stochasticoscillator.asp</a>
+ */
 public class StochasticOscillator extends CachedIndicator<BigDecimal> {
 
     private final ClosePriceIndicator indicator;

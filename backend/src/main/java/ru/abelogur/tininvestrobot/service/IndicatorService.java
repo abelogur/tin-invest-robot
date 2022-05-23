@@ -1,88 +1,91 @@
 package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.abelogur.tininvestrobot.domain.CachedCandle;
-import ru.abelogur.tininvestrobot.dto.ChartPoint;
-import ru.abelogur.tininvestrobot.helper.HelperUtils;
-import ru.abelogur.tininvestrobot.indicator.EMAIndicator;
-import ru.abelogur.tininvestrobot.indicator.SMAIndicator;
-import ru.abelogur.tininvestrobot.indicator.StochasticOscillator;
-import ru.tinkoff.piapi.contract.v1.CandleInterval;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
+import ru.abelogur.tininvestrobot.dto.chart.Chart;
+import ru.abelogur.tininvestrobot.dto.chart.ChartIndicators;
+import ru.abelogur.tininvestrobot.dto.chart.ChartPoint;
+import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 
-import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
 public class IndicatorService {
 
-    private final SdkService sdkService;
+    private final InvestBotRepository investBotRepository;
 
-    private final HashMap<String, List<CachedCandle>> cache = new HashMap<>();
-
-    public List<ChartPoint> getEmaIndicator(String figi, Integer count, Duration interval) {
-        var candleInterval = HelperUtils.intervalFrom(interval);
-
-        var cacheKey = figi+candleInterval;
-        final List<CachedCandle> candles;
-        if (cache.containsKey(cacheKey)) {
-            candles = cache.get(cacheKey);
-        } else {
-            candles = getDataSet(figi, 1, candleInterval);
-            cache.put(cacheKey, candles);
+    public Optional<Chart> getIndicators(UUID botUuid, Integer offset, Integer periodDays) {
+        var bot = investBotRepository.get(botUuid)
+                .orElseThrow(() -> new RestRuntimeException("Бот не найдет", HttpStatus.NOT_FOUND));
+        var candles = bot.getCandles();
+        if (candles.size() < 2) {
+            return Optional.empty();
         }
-        var indicator = new EMAIndicator(candles, count);
-        return IntStream.range(candles.size() - 10, candles.size()).boxed()
-                .map(i -> new ChartPoint()
-                        .setValue(indicator.getValue(i))
-                        .setTime(candles.get(i).getTime()))
+
+        var start = candles.stream()
+                .map(candle -> LocalDate.from(candle.getTime().atOffset(ZoneOffset.UTC)))
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList()).get(offset * periodDays).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var finish = start.plus(Duration.ofDays(periodDays));
+
+        var startIndex = -1;
+        var finishIndex = finish.isAfter(candles.get(candles.size() - 1).getTime()) ? candles.size() - 1 : -1;
+        for (int i = 0; i < candles.size(); i++) {
+            if (startIndex == -1 && !candles.get(i).getTime().isBefore(start)) {
+                startIndex = i;
+            } else if (finishIndex == -1 && candles.get(i).getTime().isAfter(finish)) {
+                finishIndex = i - 1;
+            }
+            if (startIndex != -1 && finishIndex != -1) {
+                break;
+            }
+        }
+        if (startIndex == -1 || finishIndex == -1) {
+            return Optional.empty();
+        }
+
+        var indicators = bot.getInvestStrategy().getValues(startIndex, finishIndex);
+        var candlesOut = candles.subList(startIndex, finishIndex + 1).stream()
+                .map(ChartPoint::of)
                 .collect(Collectors.toList());
+        var result = new HashMap<String, List<ChartPoint>>();
+        indicators.keySet().forEach(key -> result.put(key, new ArrayList<>()));
+        for (int i = 0; i < candlesOut.size(); i++) {
+            var index = i;
+            result.keySet().forEach(key -> result.get(key).add(
+                    new ChartPoint(indicators.get(key).get(index), candlesOut.get(index).getTime()))
+            );
+        }
+
+        return Optional.of(new Chart(candlesOut, result));
     }
 
-    public List<ChartPoint> getStochasticOscillatorIndicator(String figi, Integer count,
-                                                             Duration interval, Integer smoothing) {
-        var candleInterval = HelperUtils.intervalFrom(interval);
-
-        var cacheKey = figi+interval;
-        final List<CachedCandle> candles;
-        if (cache.containsKey(cacheKey)) {
-            candles = cache.get(cacheKey);
-        } else {
-            candles = getDataSet(figi, 1, candleInterval);
-            cache.put(cacheKey, candles);
+    public ChartIndicators getLastIndicators(UUID botUuid) {
+        var bot = investBotRepository.get(botUuid).orElse(null);
+        if (bot == null) {
+            return null;
         }
+        var candles = bot.getCandles();
+        var lastIndex = candles.size() - 1;
+        var lastCandle = candles.get(lastIndex);
+        var indicators = bot.getInvestStrategy().getValues(lastIndex, lastIndex);
 
-        var indicator = new SMAIndicator(new StochasticOscillator(candles, count), smoothing);
-        return IntStream.range(candles.size() - 10, candles.size()).boxed()
-                .map(i -> new ChartPoint()
-                        .setValue(indicator.getValue(i))
-                        .setTime(candles.get(i).getTime()))
-                .collect(Collectors.toList());
-    }
 
-    private List<CachedCandle> getDataSet(String figi, int offsetYears, CandleInterval candleInterval) {
-        if (offsetYears > 1) {
-            return new ArrayList<>();
-        }
-//        var from = OffsetDateTime.now().minusYears(offsetYears).toInstant();
-//        var to = OffsetDateTime.now().minusYears(offsetYears - 1).toInstant();
-        var from = OffsetDateTime.now().minusDays(1).toInstant();
-        var to = OffsetDateTime.now().toInstant();
-        var candles = sdkService.getInvestApi()
-                .getMarketDataService().getCandlesSync(figi, from, to, candleInterval).stream()
-                .map(it -> CachedCandle.ofHistoricCandle(it, BigDecimal.ONE))
-                .collect(TreeSet<CachedCandle>::new, TreeSet::add, TreeSet::addAll);
-        if (!candles.isEmpty()) {
-            candles.addAll(getDataSet(figi, offsetYears + 1, candleInterval));
-        }
-        return new ArrayList<>(candles);
+        Map<String, ChartPoint> result = new HashMap<>();
+
+        indicators.forEach(
+                (indicator, values) -> result.put(indicator,
+                        new ChartPoint(values.get(values.size() - 1), lastCandle.getTime()))
+        );
+
+        return new ChartIndicators(new ChartPoint(lastCandle.getClosePrice(), lastCandle.getTime()), result);
     }
 }

@@ -3,7 +3,7 @@ package ru.abelogur.tininvestrobot.repository.inmemory;
 import org.springframework.stereotype.Repository;
 import ru.abelogur.tininvestrobot.domain.Order;
 import ru.abelogur.tininvestrobot.repository.OrderHistoryRepository;
-import ru.abelogur.tininvestrobot.service.OrderObserver;
+import ru.abelogur.tininvestrobot.service.order.OrderObserver;
 
 import java.util.*;
 import java.util.function.Supplier;

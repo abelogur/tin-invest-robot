@@ -1,11 +1,14 @@
 package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
 import ru.abelogur.tininvestrobot.domain.InvestBot;
 import ru.abelogur.tininvestrobot.domain.OrderAction;
 import ru.abelogur.tininvestrobot.domain.TradeType;
 import ru.abelogur.tininvestrobot.dto.StatisticDto;
+import ru.abelogur.tininvestrobot.repository.CurrencyRepository;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
 import ru.abelogur.tininvestrobot.repository.OrderHistoryRepository;
@@ -23,11 +26,12 @@ public class StatisticService {
     private final SdkService sdkService;
     private final InstrumentRepository instrumentRepository;
     private final InvestBotRepository botRepository;
+    private final CurrencyRepository currencyRepository;
 
     public StatisticDto getStatistic(UUID botUuid) {
         var settings = botRepository.get(botUuid)
-                .map(InvestBot::getSettings)
-                .orElseThrow(() -> new IllegalArgumentException("Bot doesn't exist"));
+                .map(InvestBot::getState)
+                .orElseThrow(() -> new RestRuntimeException("Бота с таким uuid не найден", HttpStatus.NOT_FOUND));
         var orders = orderHistoryRepository.getAll(botUuid);
         if (orders.isEmpty()) {
             return StatisticDto.empty();
@@ -63,6 +67,16 @@ public class StatisticService {
         profit = profit.add(lastPrice.multiply(BigDecimal.valueOf(longs)));
         profit = profit.subtract(lastPrice.multiply(BigDecimal.valueOf(shorts)));
         return new StatisticDto(orders, profit, commission, usedMoney);
+    }
+
+    public StatisticDto getGeneralStatistic() {
+        return botRepository.getAll().stream()
+                .map(bot -> {
+                    var instrument = instrumentRepository.get(bot.getState().getGroupId().getFigi());
+                    var currencyMultiplier = currencyRepository.getCurrentPrice(instrument.getCurrency());
+                    return getStatistic(bot.getState().getUuid()).multiply(currencyMultiplier);
+                })
+                .reduce(StatisticDto.empty(), StatisticDto::sum);
     }
 
     private BigDecimal getLastPrice(String figi) {

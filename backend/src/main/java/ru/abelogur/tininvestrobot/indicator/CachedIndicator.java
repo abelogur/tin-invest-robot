@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Кеширует данные для {@link Indicator indicator}.
+ *
+ * Позволяет избежать перерасчета индикатора.
+ */
 public abstract class CachedIndicator<T> extends AbstractIndicator<T> {
 
     private final Map<Integer, T> cache;

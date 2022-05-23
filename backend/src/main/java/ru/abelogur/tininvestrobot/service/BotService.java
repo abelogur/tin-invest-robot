@@ -1,24 +1,24 @@
 package ru.abelogur.tininvestrobot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.abelogur.tininvestrobot.domain.CachedCandle;
-import ru.abelogur.tininvestrobot.domain.CachedInstrument;
-import ru.abelogur.tininvestrobot.domain.CandleGroupId;
-import ru.abelogur.tininvestrobot.domain.InvestBot;
-import ru.abelogur.tininvestrobot.dto.*;
-import ru.abelogur.tininvestrobot.helper.CandleSteamsHolder;
-import ru.abelogur.tininvestrobot.helper.OrderObserversHolder;
+import ru.abelogur.tininvestrobot.controller.exception.RestRuntimeException;
+import ru.abelogur.tininvestrobot.domain.*;
+import ru.abelogur.tininvestrobot.dto.BotConfig;
+import ru.abelogur.tininvestrobot.dto.BotEnv;
+import ru.abelogur.tininvestrobot.dto.BotPreview;
+import ru.abelogur.tininvestrobot.dto.StatisticDto;
 import ru.abelogur.tininvestrobot.repository.InstrumentRepository;
 import ru.abelogur.tininvestrobot.repository.InvestBotRepository;
-import ru.abelogur.tininvestrobot.service.order.OrderService;
-import ru.abelogur.tininvestrobot.service.order.RealOrderService;
-import ru.abelogur.tininvestrobot.service.order.SandboxOrderService;
-import ru.abelogur.tininvestrobot.service.order.SimulateOrderService;
+import ru.abelogur.tininvestrobot.service.candle.CandleService;
+import ru.abelogur.tininvestrobot.service.candle.CandleSteamsHolder;
+import ru.abelogur.tininvestrobot.service.notification.TelegramNotification;
+import ru.abelogur.tininvestrobot.service.order.*;
 import ru.abelogur.tininvestrobot.simulator.Simulator;
-import ru.abelogur.tininvestrobot.strategy.OneMinuteScalpingStrategy;
 import ru.tinkoff.piapi.contract.v1.Account;
-import ru.tinkoff.piapi.contract.v1.CandleInterval;
+import ru.tinkoff.piapi.core.exception.ApiRuntimeException;
 
 import java.time.Instant;
 import java.util.*;
@@ -44,74 +44,68 @@ public class BotService {
     private final SandboxOrderService sandboxOrderService;
     private final SimulateOrderService simulateOrderService;
 
+    private Optional<TelegramNotification> telegramNotification = Optional.empty();
+
     public List<BotPreview> getBotsPreview() {
         return investBotRepository.getAll().stream()
-                .map(bot -> {
-                    BotSettings settings = bot.getSettings();
-                    CachedInstrument instrument = instrumentRepository.get(settings.getFigi());
-                    StatisticDto statistic = statisticService.getStatistic(bot.getSettings().getUuid());
-                    return new BotPreview()
-                            .setId(settings.getUuid())
-                            .setStart(bot.getSettings().getStart())
-                            .setStrategy(bot.getInvestStrategy().getCode().getName())
-                            .setBotType(settings.getBotType())
-                            .setInstrument(instrument.getName())
-                            .setInstrumentTicket(instrument.getTicker())
-                            .setNumberOfOrders(statistic.getOrders().size())
-                            .setProfit(statistic.getProfit())
-                            .setProfitPercentage(statistic.getProfitPercentage())
-                            .setCurrency(instrument.getCurrency());
-                }).collect(Collectors.toList());
+                .map(this::getBotPreview)
+                .collect(Collectors.toList());
     }
 
-    public UUID createRealBot(BotConfig config) {
-        var groupId = CandleGroupId.of(config.getFigi(), CandleInterval.CANDLE_INTERVAL_1_MIN);
+    public BotPreview createRealBot(BotConfig config) {
+        var groupId = CandleGroupId.of(config.getFigi(), config.getStrategyCode().getInterval());
         var candles = candleService.loadHistoricCandles(groupId);
         var accountId = getRealAccountId(config);
-        var settings = getBotSettings(config, accountId, BotType.REAL);
-        return createBot(groupId, candles, settings, realOrderService).getSettings().getUuid();
+        var state = getBotState(config, accountId, BotEnv.REAL, groupId, isMarginAvailable(accountId));
+        var bot = createBot(candles, state, config, realOrderService);
+        candleSteamsHolder.addNewSubscription(groupId);
+        return getBotPreview(bot);
     }
 
-    public UUID createSandboxBot(BotConfig config) {
-        var groupId = CandleGroupId.of(config.getFigi(), CandleInterval.CANDLE_INTERVAL_1_MIN);
+    public BotPreview createSandboxBot(BotConfig config) {
+        var groupId = CandleGroupId.of(config.getFigi(), config.getStrategyCode().getInterval());
         var candles = candleService.loadHistoricCandles(groupId);
         var accountId = getSandboxAccountId(config);
-        var settings = getBotSettings(config, accountId, BotType.SANDBOX);
+        var state = getBotState(config, accountId, BotEnv.SANDBOX, groupId, true);
+        var bot = createBot(candles, state, config, sandboxOrderService);
         candleSteamsHolder.addNewSubscription(groupId);
-        return createBot(groupId, candles, settings, sandboxOrderService).getSettings().getUuid();
+        return getBotPreview(bot);
     }
 
-    public UUID createBotSimulation(BotConfig config, Instant startSimulation) {
-        var groupId = CandleGroupId.of(config.getFigi(), CandleInterval.CANDLE_INTERVAL_1_MIN);
+    public BotPreview createBotSimulation(BotConfig config, Instant startSimulation) {
+        var groupId = CandleGroupId.of(config.getFigi(), config.getStrategyCode().getInterval());
         var candles = candleService.loadHistoricCandles(groupId, startSimulation);
-
-        var settings = getBotSettings(config, "simulation", BotType.SIMULATION);
-        var bot = createBot(groupId, candles, settings, simulateOrderService);
+        var state = getBotState(config, "simulation", BotEnv.SIMULATION, groupId, true);
+        var bot = createBot(candles, state, config, simulateOrderService);
         simulator.simulate(groupId, startSimulation);
         candleService.uncached(groupId);
         candleService.removeObserver(groupId, bot);
-        return bot.getSettings().getUuid();
+        return getBotPreview(bot);
     }
 
     public void removeBot(UUID botUuid) {
         investBotRepository.get(botUuid)
                 .ifPresent(bot -> {
-                    var groupId = bot.getGroupId();
+                    var groupId = bot.getState().getGroupId();
                     candleService.uncached(groupId);
                     candleService.removeObserver(groupId, bot);
                     investBotRepository.remove(botUuid);
                     candleSteamsHolder.removeSubscription(groupId);
                     orderObserversHolder.removeSpecifiedObserver(botUuid);
+                    telegramNotification.ifPresent(it -> it.removeObserver(botUuid));
                 });
     }
 
-    private InvestBot createBot(CandleGroupId groupId, SortedSet<CachedCandle> candles,
-                                BotSettings settings, OrderService orderService) {
+    private InvestBot createBot(SortedSet<CachedCandle> candles, BotState state, BotConfig config, OrderService orderService) {
         var candleList = new ArrayList<>(candles);
-        var investStrategy = new OneMinuteScalpingStrategy(candleList);
-        var bot = new InvestBot(settings, candleList, investStrategy, orderService);
-        candleService.addObserver(groupId, bot);
-        orderObserversHolder.addSpecifiedObserver(settings.getUuid(), bot);
+        var investStrategy = config.getStrategyCode().create(candleList, config.getStrategiesConfig());
+        var bot = new InvestBot(state, candleList, investStrategy, orderService);
+        candleService.addObserver(state.getGroupId(), bot);
+        orderObserversHolder.addSpecifiedObserver(state.getUuid(), bot);
+        if (config.getTelegramBotChatId() != null) {
+            telegramNotification
+                    .ifPresent(it -> it.addObserver(bot.getState().getUuid(), config.getTelegramBotChatId()));
+        }
         investBotRepository.save(bot);
         return bot;
     }
@@ -122,7 +116,7 @@ public class BotService {
                         .filter(account -> account.getStatus().equals(ACCOUNT_STATUS_OPEN)
                                 && account.getAccessLevel().equals(ACCOUNT_ACCESS_LEVEL_FULL_ACCESS))
                         .findFirst().map(Account::getId))
-                .orElseThrow(() -> new IllegalArgumentException("There aren't accounts"));
+                .orElseThrow(() -> new RestRuntimeException("Нет подходящего аккаунта", HttpStatus.NOT_FOUND));
     }
 
     private String getSandboxAccountId(BotConfig config) {
@@ -131,18 +125,56 @@ public class BotService {
                         .filter(account -> account.getStatus().equals(ACCOUNT_STATUS_OPEN)
                                 && account.getAccessLevel().equals(ACCOUNT_ACCESS_LEVEL_FULL_ACCESS))
                         .findFirst().map(Account::getId))
-                .orElseThrow(() -> new IllegalArgumentException("There aren't accounts"));
+                .or(() -> Optional.of(sdkService.getSandboxInvestApi().getSandboxService().openAccountSync()))
+                .orElseThrow(() -> new RestRuntimeException("Нет подходящего аккаунта", HttpStatus.NOT_FOUND));
     }
 
-    private BotSettings getBotSettings(BotConfig config, String accountId, BotType type) {
-        return new BotSettings()
+    private BotState getBotState(BotConfig config, String accountId, BotEnv env,
+                                 CandleGroupId groupId, boolean isMarginAvailable) {
+        return new BotState()
                 .setUuid(UUID.randomUUID())
-                .setStart(Instant.now())
+                .setGroupId(groupId)
+                .setInitTime(Instant.now())
                 .setAccountId(accountId)
-                .setBotType(type)
-                .setFigi(config.getFigi())
+                .setBotEnv(env)
                 .setTakeProfit(config.getTakeProfit())
                 .setStopLoss(config.getStopLoss())
-                .setNumberOfLots(config.getNumberOfLots());
+                .setNumberOfLots(config.getNumberOfLots())
+                .setMarginAvailable(isMarginAvailable)
+                .setTelegramBotChatId(config.getTelegramBotChatId());
+    }
+
+    private boolean isMarginAvailable(String accountId) {
+        try {
+            sdkService.getInvestApi().getUserService().getMarginAttributesSync(accountId);
+            return true;
+        } catch (ApiRuntimeException e) {
+            return false;
+        }
+    }
+
+    private BotPreview getBotPreview(InvestBot bot) {
+        BotState state = bot.getState();
+        CachedInstrument instrument = instrumentRepository.get(state.getFigi());
+        StatisticDto statistic = statisticService.getStatistic(bot.getState().getUuid());
+        return new BotPreview()
+                .setUuid(state.getUuid())
+                .setStart(bot.getState().getInitTime())
+                .setStrategyCode(bot.getInvestStrategy().getCode())
+                .setBotEnv(state.getBotEnv())
+                .setInstrument(instrument.getName())
+                .setInstrumentTicket(instrument.getTicker())
+                .setNumberOfOrders(statistic.getOrders().size())
+                .setProfit(statistic.getProfit())
+                .setProfitPercentage(statistic.getProfitPercentage())
+                .setCurrency(instrument.getCurrency())
+                .setTelegramBotChatId(state.getTelegramBotChatId())
+                .setIconUrl(instrument.getImage())
+                .setErrors(bot.getState().getErrors());
+    }
+
+    @Autowired(required = false)
+    public void setTelegramNotification(TelegramNotification telegramNotification) {
+        this.telegramNotification = Optional.of(telegramNotification);
     }
 }
