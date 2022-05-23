@@ -18,6 +18,9 @@ public class SdkService {
     private final InvestApi sandboxInvestApi;
 
     public SdkService(@Value("${app.config.token}") String token) {
+        if (token == null || token.isBlank()){
+            throw new IllegalArgumentException("Невалидный токен. Проверьте правильность токена в src/main/resources/application.yaml");
+        }
         investApi = InvestApi.create(token, APP_NAME_HEADER);
         sandboxInvestApi = InvestApi.createSandbox(token, APP_NAME_HEADER);
     }
