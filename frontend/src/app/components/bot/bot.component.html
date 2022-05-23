@@ -1,0 +1,18 @@
+<div class="d-flex mx-2">
+  <h3 class="headline1 headline_color text-black">Список ботов</h3>
+</div>
+<div class="d-flex flex-wrap">
+  <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-1" *ngFor="let bot of bots">
+    <div class="block pointer" [routerLink]="'/bot/' + bot.uuid">
+      <p class="headline3 base-color">{{bot.instrument}}</p>
+      <p class="text_color paragraph_small">кол-во заявок: {{bot.numberOfOrders}}</p>
+      <p class="paragraph_medium mb-1">доход:
+        <span [ngClass]="{'error-color': bot.profit < 0, 'success-color': bot.profit > 0}">
+          {{bot.profit}} ({{bot.profitPercentage}}%){{bot.currency}}
+        </span>
+      </p>
+      <p class="paragraph text_color">ошибок: {{bot.errors.length}}</p>
+      <div class="badge">{{bot.botEnv}}</div>
+    </div>
+  </div>
+</div>
